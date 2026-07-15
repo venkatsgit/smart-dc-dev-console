@@ -1,0 +1,18 @@
+# Grafana PersistentVolumeClaim — Azure Disk (SQLite-safe)
+# Variables: ENVIRONMENT, NAMESPACE, STORAGE_SIZE
+# Note: Azure File SMB does not support SQLite locking; use managed-csi for /var/lib/grafana
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-data-pvc-$ENVIRONMENT
+  namespace: $NAMESPACE
+  labels:
+    app: grafana
+    environment: $ENVIRONMENT
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-csi
+  resources:
+    requests:
+      storage: $STORAGE_SIZE

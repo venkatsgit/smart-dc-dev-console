@@ -1,0 +1,31 @@
+# Optional: Azure File PVC for exported dashboard JSON files (not Grafana sqlite)
+# Variables: ENVIRONMENT, NAMESPACE, FILESHARE_NAME, STORAGE_SIZE
+# Mount separately if you want JSON exports on the fileshare.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-dashboards-pv-dev
+  labels:
+    type: azurefile-grafana-dashboards
+    environment: dev
+    app: grafana
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azurefile
+  azureFile:
+    secretName: azure-secret
+    shareName: dev-devconsole-grafana
+    readOnly: false
+  mountOptions:
+    - vers=3.0
+    - dir_mode=0777
+    - file_mode=0777
+    - serverino
+    - noperm
+    - mfsymlinks
+    - cache=strict
+    - nosharesock

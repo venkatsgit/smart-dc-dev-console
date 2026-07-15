@@ -1,0 +1,23 @@
+# Grafana dashboards export PVC (Azure File) — for UI-exported / shared JSON
+# Variables: ENVIRONMENT, NAMESPACE, STORAGE_SIZE
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-dashboards-pvc-dev
+  namespace: smart-dc-dev
+  labels:
+    type: azurefile-grafana-dashboards
+    environment: dev
+    app: grafana
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      type: azurefile-grafana-dashboards
+      environment: dev
+      app: grafana

@@ -1,0 +1,14 @@
+apiVersion: 1
+
+providers:
+  - name: SmartDC
+    orgId: 1
+    folder: Smart DC
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      # Outside Grafana data dir so image-baked JSON survives named volumes
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false

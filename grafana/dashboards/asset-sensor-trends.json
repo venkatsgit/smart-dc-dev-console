@@ -1,0 +1,139 @@
+{
+  "uid": "asset-sensor-trends",
+  "title": "Asset / Sensor Trends",
+  "description": "sgp7_dev trends: one searchable multi-select of Asset | Sensor. One graph per selected sensor. Anomaly predictions show actual + predicted; others use telemetry_sensors_1min_agg. Default last 24 hours (SGT).",
+  "tags": [
+    "smart-dc",
+    "sgp7_dev",
+    "trends"
+  ],
+  "timezone": "Asia/Singapore",
+  "schemaVersion": 39,
+  "version": 7,
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "weekStart": "",
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "sensors",
+        "label": "Asset | Sensor",
+        "description": "Type to search. Multi-select sensors across any assets. Label format: AssetName | SensorName",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres"
+        },
+        "query": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM sgp7_dev.sensor_master sm INNER JOIN sgp7_dev.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
+        "definition": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM sgp7_dev.sensor_master sm INNER JOIN sgp7_dev.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": true,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "${sensors:text}",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "maxPerRow": 2,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH has_pred AS (\n  SELECT 1\n  FROM sgp7_dev.anomaly_predictions p\n  WHERE p.sensor_id = '${sensors}'\n    AND $__timeFilter(p.eventdatetime)\n  LIMIT 1\n)\nSELECT p.eventdatetime AS \"time\",\n       'actual' AS metric,\n       p.actual_value::double precision AS value\nFROM sgp7_dev.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted' AS metric,\n       p.predicted_value::double precision AS value\nFROM sgp7_dev.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM sgp7_dev.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\n  AND NOT EXISTS (SELECT 1 FROM has_pred)\nORDER BY 1"
+        }
+      ]
+    }
+  ]
+}

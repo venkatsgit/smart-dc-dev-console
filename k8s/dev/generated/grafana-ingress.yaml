@@ -1,0 +1,34 @@
+# Grafana Ingress Template — same nginx pattern as MLflow /mlflowdev
+# Variables: ENVIRONMENT, NAMESPACE, DEVCONSOLE_PATH, PORT
+# Escaping: double-dollar in rewrite/path becomes a single dollar in generated YAML
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress-dev
+  namespace: smart-dc-dev
+  labels:
+    app: grafana
+    environment: dev
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/auth-type: "basic"
+    nginx.ingress.kubernetes.io/auth-secret: "basic-auth-secret"
+    nginx.ingress.kubernetes.io/auth-realm: "Dev Console Authentication Required"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /devconsole(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-service-dev
+            port:
+              number: 3000

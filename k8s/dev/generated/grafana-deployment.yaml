@@ -1,0 +1,120 @@
+# Grafana Deployment Template
+# Variables: ENVIRONMENT, NAMESPACE, GRAFANA_IMAGE, PORT, DEVCONSOLE_PATH
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-dev
+  namespace: smart-dc-dev
+  labels:
+    app: grafana
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      environment: dev
+  template:
+    metadata:
+      labels:
+        app: grafana
+        environment: dev
+    spec:
+      securityContext:
+        fsGroup: 472
+        supplementalGroups:
+          - 0
+      containers:
+      - name: grafana
+        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.0.0
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-secret-dev
+              key: GF_SECURITY_ADMIN_USER
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-secret-dev
+              key: GF_SECURITY_ADMIN_PASSWORD
+        - name: PG_HOST
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_HOST
+        - name: PG_PORT
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PORT
+        - name: PG_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_DATABASE
+        - name: PG_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_USER
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PASSWORD
+        - name: GF_SERVER_HTTP_PORT
+          value: "3000"
+        - name: GF_SERVER_DOMAIN
+          value: "4.144.173.96"
+        # Ingress strips /devconsole via rewrite-target; keep SERVE_FROM_SUB_PATH false
+        - name: GF_SERVER_ROOT_URL
+          value: "http://4.144.173.96/devconsole/"
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "false"
+        - name: GF_USERS_DEFAULT_THEME
+          value: "light"
+        - name: GF_DATE_FORMATS_DEFAULT_TIMEZONE
+          value: "Asia/Singapore"
+        - name: GF_PATHS_DATA
+          value: "/var/lib/grafana"
+        - name: GF_PATHS_PROVISIONING
+          value: "/etc/grafana/provisioning"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "false"
+        volumeMounts:
+        - name: grafana-data
+          mountPath: /var/lib/grafana
+        - name: grafana-dashboards-export
+          mountPath: /var/lib/grafana/dashboards-export
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: grafana-data
+        persistentVolumeClaim:
+          claimName: grafana-data-pvc-dev
+      - name: grafana-dashboards-export
+        persistentVolumeClaim:
+          claimName: grafana-dashboards-pvc-dev
