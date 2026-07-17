@@ -20,3 +20,23 @@ datasources:
       connMaxLifetime: 14400
       postgresVersion: 1400
       timescaledb: false
+
+  - name: SmartDC Postgres Prod
+    uid: smartdc-postgres-prod
+    type: postgres
+    access: proxy
+    orgId: 1
+    isDefault: false
+    url: ${PG_PROD_HOST}:${PG_PROD_PORT}
+    user: ${PG_PROD_USER}
+    editable: false
+    secureJsonData:
+      password: ${PG_PROD_PASSWORD}
+    jsonData:
+      database: ${PG_PROD_DATABASE}
+      sslmode: require
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+      postgresVersion: 1400
+      timescaledb: false

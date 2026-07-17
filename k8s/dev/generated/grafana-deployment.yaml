@@ -10,6 +10,8 @@ metadata:
     environment: dev
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana
@@ -26,7 +28,7 @@ spec:
           - 0
       containers:
       - name: grafana
-        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.0.0
+        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.3.0
         imagePullPolicy: Always
         ports:
         - name: http
@@ -68,6 +70,31 @@ spec:
             secretKeyRef:
               name: grafana-postgres-secret-dev
               key: PG_PASSWORD
+        - name: PG_PROD_HOST
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PROD_HOST
+        - name: PG_PROD_PORT
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PROD_PORT
+        - name: PG_PROD_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PROD_DATABASE
+        - name: PG_PROD_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PROD_USER
+        - name: PG_PROD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-dev
+              key: PG_PROD_PASSWORD
         - name: GF_SERVER_HTTP_PORT
           value: "3000"
         - name: GF_SERVER_DOMAIN

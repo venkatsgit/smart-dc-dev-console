@@ -1,0 +1,242 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "SGP8 power trends for chiller, CWP, and CHWP combined kW across seven HT and two LT chillers. Uses prioritized anomaly predictions with telemetry fallback.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres-prod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "maxPerRow": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH sensor_meta AS (\n  SELECT sm.sensor_id,\n         CASE WHEN am.asset_name LIKE 'HT-%'\n              THEN 'HTCH-SYSTEM-GBR'\n              ELSE 'LTCH-SYSTEM-GBR'\n         END AS use_case\n  FROM sgp8.sensor_master sm\n  JOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\n  WHERE sm.sensor_id = '${sensors}'\n),\nhas_pred AS (\n  SELECT 1\n  FROM sgp8.anomaly_predictions p\n  JOIN sensor_meta sm\n    ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\n  WHERE p.sensor_id = sm.sensor_id\n    AND $__timeFilter(p.eventdatetime)\n  LIMIT 1\n)\nSELECT p.eventdatetime AS \"time\",\n       'actual' AS metric,\n       p.actual_value::double precision AS value\nFROM sgp8.anomaly_predictions p\nJOIN sensor_meta sm\n  ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\nWHERE p.sensor_id = '${sensors}'\n  AND $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted' AS metric,\n       p.predicted_value::double precision AS value\nFROM sgp8.anomaly_predictions p\nJOIN sensor_meta sm\n  ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\nWHERE p.sensor_id = '${sensors}'\n  AND $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM sgp8.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\n  AND NOT EXISTS (SELECT 1 FROM has_pred)\nORDER BY 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "${sensors:text}",
+      "type": "timeseries",
+      "description": "Actual/predicted combined kW when a preferred model is available; otherwise 1-minute telemetry."
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 40,
+  "tags": [
+    "smart-dc",
+    "sgp8",
+    "power",
+    "chiller"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": [
+            "HT-CH-01 | CH-KW-COMBINED",
+            "HT-CH-01 | CHWP-KW-COMBINED",
+            "HT-CH-01 | CWP-KW-COMBINED",
+            "HT-CH-02 | CH-KW-COMBINED",
+            "HT-CH-02 | CHWP-KW-COMBINED",
+            "HT-CH-02 | CWP-KW-COMBINED",
+            "HT-CH-03 | CH-KW-COMBINED",
+            "HT-CH-03 | CHWP-KW-COMBINED",
+            "HT-CH-03 | CWP-KW-COMBINED",
+            "HT-CH-04 | CH-KW-COMBINED",
+            "HT-CH-04 | CHWP-KW-COMBINED",
+            "HT-CH-04 | CWP-KW-COMBINED",
+            "HT-CH-05 | CH-KW-COMBINED",
+            "HT-CH-05 | CHWP-KW-COMBINED",
+            "HT-CH-05 | CWP-KW-COMBINED",
+            "HT-CH-06 | CH-KW-COMBINED",
+            "HT-CH-06 | CHWP-KW-COMBINED",
+            "HT-CH-06 | CWP-KW-COMBINED",
+            "HT-CH-07 | CH-KW-COMBINED",
+            "HT-CH-07 | CHWP-KW-COMBINED",
+            "HT-CH-07 | CWP-KW-COMBINED",
+            "LT-CH-01 | CH-KW-COMBINED",
+            "LT-CH-01 | CHWP-KW-COMBINED",
+            "LT-CH-01 | CWP-KW-COMBINED",
+            "LT-CH-02 | CH-KW-COMBINED",
+            "LT-CH-02 | CHWP-KW-COMBINED",
+            "LT-CH-02 | CWP-KW-COMBINED"
+          ],
+          "value": [
+            "D_100_2081_MD",
+            "D_100_2082_MD",
+            "D_100_2083_MD",
+            "D_101_2081_MD",
+            "D_101_2082_MD",
+            "D_101_2083_MD",
+            "D_102_2081_MD",
+            "D_102_2082_MD",
+            "D_102_2083_MD",
+            "D_103_2081_MD",
+            "D_103_2082_MD",
+            "D_103_2083_MD",
+            "D_104_2081_MD",
+            "D_104_2082_MD",
+            "D_104_2083_MD",
+            "D_105_2081_MD",
+            "D_105_2082_MD",
+            "D_105_2083_MD",
+            "D_106_2081_MD",
+            "D_106_2082_MD",
+            "D_106_2083_MD",
+            "D_110_2081_MD",
+            "D_110_2082_MD",
+            "D_110_2083_MD",
+            "D_111_2081_MD",
+            "D_111_2082_MD",
+            "D_111_2083_MD"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres-prod"
+        },
+        "definition": "SELECT sm.sensor_id AS __value,\n       COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n       COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text\nFROM sgp8.sensor_master sm\nJOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\nWHERE sm.asset_id IN ('D_100','D_101','D_102','D_103','D_104','D_105','D_106','D_110','D_111')\n  AND sm.sensor_name IN ('CH-KW-COMBINED','CWP-KW-COMBINED','CHWP-KW-COMBINED')\nORDER BY am.asset_name, sm.sensor_name",
+        "description": "Search and multi-select combined kW sensors across nine chillers.",
+        "includeAll": false,
+        "label": "Asset | Sensor",
+        "multi": true,
+        "name": "sensors",
+        "options": [],
+        "query": "SELECT sm.sensor_id AS __value,\n       COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n       COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text\nFROM sgp8.sensor_master sm\nJOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\nWHERE sm.asset_id IN ('D_100','D_101','D_102','D_103','D_104','D_105','D_106','D_110','D_111')\n  AND sm.sensor_name IN ('CH-KW-COMBINED','CWP-KW-COMBINED','CHWP-KW-COMBINED')\nORDER BY am.asset_name, sm.sensor_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Singapore",
+  "title": "SGP8 Chiller Power",
+  "uid": "sgp8-power",
+  "version": 1,
+  "weekStart": ""
+}

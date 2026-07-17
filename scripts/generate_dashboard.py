@@ -21,6 +21,7 @@ SERIES_SQL = """WITH has_pred AS (
   SELECT 1
   FROM sgp7_dev.anomaly_predictions p
   WHERE p.sensor_id = '${sensors}'
+    AND p.use_case = 'COOLING-SYSTEM-GBR'
     AND $__timeFilter(p.eventdatetime)
   LIMIT 1
 )
@@ -29,6 +30,7 @@ SELECT p.eventdatetime AS "time",
        p.actual_value::double precision AS value
 FROM sgp7_dev.anomaly_predictions p
 WHERE p.sensor_id = '${sensors}'
+  AND p.use_case = 'COOLING-SYSTEM-GBR'
   AND $__timeFilter(p.eventdatetime)
   AND EXISTS (SELECT 1 FROM has_pred)
 UNION ALL
@@ -37,6 +39,7 @@ SELECT p.eventdatetime AS "time",
        p.predicted_value::double precision AS value
 FROM sgp7_dev.anomaly_predictions p
 WHERE p.sensor_id = '${sensors}'
+  AND p.use_case = 'COOLING-SYSTEM-GBR'
   AND $__timeFilter(p.eventdatetime)
   AND EXISTS (SELECT 1 FROM has_pred)
 UNION ALL

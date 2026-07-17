@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import base64
+import os
 from pathlib import Path
 from string import Template
 
@@ -30,6 +31,11 @@ def process_template(template_file: Path, config: dict, output_file: Path) -> No
     substitutions["PG_HOST_B64"] = b64(config["PG_HOST"])
     substitutions["PG_DATABASE_B64"] = b64(config["PG_DATABASE"])
     substitutions["PG_PORT_B64"] = b64(config["PG_PORT"])
+    substitutions["PG_PROD_USER_B64"] = b64(config["PG_PROD_USER"])
+    substitutions["PG_PROD_PASSWORD_B64"] = b64(config["PG_PROD_PASSWORD"])
+    substitutions["PG_PROD_HOST_B64"] = b64(config["PG_PROD_HOST"])
+    substitutions["PG_PROD_DATABASE_B64"] = b64(config["PG_PROD_DATABASE"])
+    substitutions["PG_PROD_PORT_B64"] = b64(config["PG_PROD_PORT"])
     substitutions["GF_SECURITY_ADMIN_USER_B64"] = b64(config["GF_SECURITY_ADMIN_USER"])
     substitutions["GF_SECURITY_ADMIN_PASSWORD_B64"] = b64(config["GF_SECURITY_ADMIN_PASSWORD"])
 
@@ -60,6 +66,13 @@ def main() -> None:
     for config_file in config_files:
         print(f"\nProcessing: {config_file.relative_to(script_dir)}")
         config = load_config(config_file)
+        prod_password = os.environ.get("PG_PROD_PASSWORD")
+        if prod_password:
+            config["PG_PROD_PASSWORD"] = prod_password
+        elif not config.get("PG_PROD_PASSWORD"):
+            raise RuntimeError(
+                "Set PG_PROD_PASSWORD before generating Kubernetes secrets"
+            )
         print(f"  Environment: {config.get('ENVIRONMENT')}")
         print(f"  Namespace: {config.get('NAMESPACE')}")
         print(f"  Path: {config.get('DEVCONSOLE_PATH')}")

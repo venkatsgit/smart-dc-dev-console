@@ -1,7 +1,7 @@
 # Smart DC Dev Console (Grafana) — Dev configuration
 ENVIRONMENT: dev
 NAMESPACE: smart-dc-dev
-GRAFANA_IMAGE: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.0.0
+GRAFANA_IMAGE: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.3.0
 PORT: 3000
 SERVICE_TYPE: ClusterIP
 DEVCONSOLE_PATH: /devconsole
@@ -18,6 +18,11 @@ PG_DATABASE: citus
 PG_USER: kdchdb005
 PG_PASSWORD: 2Tc2AUypdnFr
 
+# Production Postgres datasource (sgp7 / sgp8)
+PG_PROD_HOST: kdch-sg-aiml-postgresql-01-c.postgres.database.azure.com
+PG_PROD_PORT: 5432
+PG_PROD_DATABASE: citus
+PG_PROD_USER: kdchdb005
 # Grafana sqlite + settings persist on Azure Disk (managed-csi) — SQLite cannot run on Azure File.
 # Azure File share is mounted at /var/lib/grafana/dashboards-export for JSON exports.
 FILESHARE_NAME: dev-devconsole-grafana

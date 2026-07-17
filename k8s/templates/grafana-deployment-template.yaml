@@ -10,6 +10,8 @@ metadata:
     environment: $ENVIRONMENT
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana
@@ -68,6 +70,31 @@ spec:
             secretKeyRef:
               name: grafana-postgres-secret-$ENVIRONMENT
               key: PG_PASSWORD
+        - name: PG_PROD_HOST
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-$ENVIRONMENT
+              key: PG_PROD_HOST
+        - name: PG_PROD_PORT
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-$ENVIRONMENT
+              key: PG_PROD_PORT
+        - name: PG_PROD_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-$ENVIRONMENT
+              key: PG_PROD_DATABASE
+        - name: PG_PROD_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-$ENVIRONMENT
+              key: PG_PROD_USER
+        - name: PG_PROD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-postgres-secret-$ENVIRONMENT
+              key: PG_PROD_PASSWORD
         - name: GF_SERVER_HTTP_PORT
           value: "$PORT"
         - name: GF_SERVER_DOMAIN

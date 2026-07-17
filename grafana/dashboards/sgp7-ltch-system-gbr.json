@@ -1,0 +1,387 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "SGP7 LTCH-SYSTEM-GBR trends. All target and context sensors are selected by default. Each sensor shows use-case-specific actual and predicted values, with telemetry fallback when no predictions exist in the selected time range. Default last 24 hours (SGT).",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres-prod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "maxPerRow": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH has_pred AS (\n  SELECT 1\n  FROM sgp7.anomaly_predictions p\n  WHERE p.sensor_id = '${sensors}'\n    AND p.use_case = 'LTCH-SYSTEM-GBR'\n    AND $__timeFilter(p.eventdatetime)\n  LIMIT 1\n)\nSELECT p.eventdatetime AS \"time\",\n       'actual' AS metric,\n       p.actual_value::double precision AS value\nFROM sgp7.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND p.use_case = 'LTCH-SYSTEM-GBR'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted' AS metric,\n       p.predicted_value::double precision AS value\nFROM sgp7.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND p.use_case = 'LTCH-SYSTEM-GBR'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM sgp7.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\n  AND NOT EXISTS (SELECT 1 FROM has_pred)\nORDER BY 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "${sensors:text}",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 40,
+  "tags": [
+    "smart-dc",
+    "sgp7",
+    "LTCH-SYSTEM-GBR",
+    "trends"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": [
+            "LT-CH-01 | CH-CHWS-PRESS",
+            "LT-CH-01 | CH-CHWR-PRESS",
+            "LT-CH-01 | CH-CWS-PRESS",
+            "LT-CH-01 | CH-CWR-PRESS",
+            "LT-CH-01 | CH-CHWST",
+            "LT-CH-01 | CH-CHWRT",
+            "LT-CH-01 | CH-CWST",
+            "LT-CH-01 | CH-CWRT",
+            "LT-CH-01 | CH-CHWR-FLOW",
+            "LT-CH-01 | CH-CWS-FLOW",
+            "LT-CH-01 | CHWP-VSD-FB",
+            "LT-CH-01 | CWP-VSD-FB",
+            "LT-CH-01 | CT-VSD-FB",
+            "LT-CH-01 | HDR-A1-CHWST",
+            "LT-CH-01 | HDR-A1-CHWRT",
+            "LT-CH-01 | HDR-A1-CWST",
+            "LT-CH-01 | HDR-A1-CWRT",
+            "LT-CH-01 | HDR-B1-CHWST",
+            "LT-CH-01 | HDR-B1-CHWRT",
+            "LT-CH-01 | HDR-B1-CWST",
+            "LT-CH-01 | HDR-B1-CWRT",
+            "LT-CH-01 | HDR-A-CHWR-FLOW",
+            "LT-CH-01 | HDR-A-CWS-FLOW",
+            "LT-CH-01 | HDR-BYP-VLV-1-FB",
+            "LT-CH-01 | HDR-BYP-VLV-1-PRES",
+            "LT-CH-01 | CT-CWST",
+            "LT-CH-01 | CH-EVA-L-TEMP",
+            "LT-CH-01 | CH-EVA-RFT-TEMP",
+            "LT-CH-01 | CH-EVA-RFT-PRES",
+            "LT-CH-01 | CH-CON-L-TEMP",
+            "LT-CH-01 | CH-CON-RFT-TEMP",
+            "LT-CH-01 | CH-CON-RFT-PRES",
+            "LT-CH-01 | CH-OIL-TK-TEMP",
+            "LT-CH-01 | CH-OIL-TK-PRES",
+            "LT-CH-01 | CH-OIL-DIS-PRES",
+            "LT-CH-01 | CH-KW_A",
+            "LT-CH-01 | CH-KW_B",
+            "LT-CH-01 | CHWP-KW_A",
+            "LT-CH-01 | CHWP-KW_B",
+            "LT-CH-01 | CT-KW_A",
+            "LT-CH-01 | CT-KW_B",
+            "LT-CH-01 | CWP-KW_A",
+            "LT-CH-01 | CWP-KW_B",
+            "LT-CH-01 | CH-KW-COMBINED",
+            "LT-CH-01 | CHWP-KW-COMBINED",
+            "LT-CH-01 | CWP-KW-COMBINED",
+            "LT-CH-01 | CH-OIL-DIFF-PRES",
+            "LT-CH-01 | CH-CON-APPROACH-TEMP",
+            "LT-CH-01 | CH-EVA-APPROACH-TEMP",
+            "LT-CH-01 | CT-KW-COMBINED",
+            "LT-CH-02 | CH-CHWS-PRESS",
+            "LT-CH-02 | CH-CHWR-PRESS",
+            "LT-CH-02 | CH-CWS-PRESS",
+            "LT-CH-02 | CH-CWR-PRESS",
+            "LT-CH-02 | CH-CHWST",
+            "LT-CH-02 | CH-CHWRT",
+            "LT-CH-02 | CH-CWST",
+            "LT-CH-02 | CH-CWRT",
+            "LT-CH-02 | CH-CHWR-FLOW",
+            "LT-CH-02 | CH-CWS-FLOW",
+            "LT-CH-02 | CHWP-VSD-FB",
+            "LT-CH-02 | CWP-VSD-FB",
+            "LT-CH-02 | CT-VSD-FB",
+            "LT-CH-02 | HDR-A2-CHWST",
+            "LT-CH-02 | HDR-A2-CHWRT",
+            "LT-CH-02 | HDR-A2-CWST",
+            "LT-CH-02 | HDR-A2-CWRT",
+            "LT-CH-02 | HDR-B2-CHWST",
+            "LT-CH-02 | HDR-B2-CHWRT",
+            "LT-CH-02 | HDR-B2-CWST",
+            "LT-CH-02 | HDR-B2-CWRT",
+            "LT-CH-02 | HDR-B-CHWR-FLOW",
+            "LT-CH-02 | HDR-B-CWS-FLOW",
+            "LT-CH-02 | HDR-BYP-VLV-2-FB",
+            "LT-CH-02 | HDR-BYP-VLV-2-PRES",
+            "LT-CH-02 | CT-CWST",
+            "LT-CH-02 | CH-EVA-L-TEMP",
+            "LT-CH-02 | CH-EVA-RFT-TEMP",
+            "LT-CH-02 | CH-EVA-RFT-PRES",
+            "LT-CH-02 | CH-CON-L-TEMP",
+            "LT-CH-02 | CH-CON-RFT-TEMP",
+            "LT-CH-02 | CH-CON-RFT-PRES",
+            "LT-CH-02 | CH-OIL-TK-TEMP",
+            "LT-CH-02 | CH-OIL-TK-PRES",
+            "LT-CH-02 | CH-OIL-DIS-PRES",
+            "LT-CH-02 | CH-KW_A",
+            "LT-CH-02 | CH-KW_B",
+            "LT-CH-02 | CHWP-KW_A",
+            "LT-CH-02 | CHWP-KW_B",
+            "LT-CH-02 | CT-KW_A",
+            "LT-CH-02 | CT-KW_B",
+            "LT-CH-02 | CWP-KW_A",
+            "LT-CH-02 | CWP-KW_B",
+            "LT-CH-02 | CH-KW-COMBINED",
+            "LT-CH-02 | CHWP-KW-COMBINED",
+            "LT-CH-02 | CWP-KW-COMBINED",
+            "LT-CH-02 | CH-OIL-DIFF-PRES",
+            "LT-CH-02 | CH-CON-APPROACH-TEMP",
+            "LT-CH-02 | CH-EVA-APPROACH-TEMP",
+            "LT-CH-02 | CT-KW-COMBINED"
+          ],
+          "value": [
+            "C_107_2000",
+            "C_107_2001",
+            "C_107_2002",
+            "C_107_2003",
+            "C_107_2008",
+            "C_107_2009",
+            "C_107_2010",
+            "C_107_2011",
+            "C_107_2016",
+            "C_107_2017",
+            "C_107_2020",
+            "C_107_2021",
+            "C_107_2024",
+            "C_107_2026",
+            "C_107_2027",
+            "C_107_2028",
+            "C_107_2029",
+            "C_107_2030",
+            "C_107_2031",
+            "C_107_2032",
+            "C_107_2033",
+            "C_107_2042",
+            "C_107_2044",
+            "C_107_2046",
+            "C_107_2047",
+            "C_107_2050",
+            "C_107_2101",
+            "C_107_2103",
+            "C_107_2105",
+            "C_107_2106",
+            "C_107_2108",
+            "C_107_2110",
+            "C_107_2112",
+            "C_107_2113",
+            "C_107_2115",
+            "C_107_2165",
+            "C_107_2166",
+            "C_107_2169",
+            "C_107_2170",
+            "C_107_2173",
+            "C_107_2174",
+            "C_107_2177",
+            "C_107_2178",
+            "C_107_2919_MD",
+            "C_107_2920_MD",
+            "C_107_2921_MD",
+            "C_107_2922_MD",
+            "C_107_2923_MD",
+            "C_107_2924_MD",
+            "C_107_2925_MD",
+            "C_108_2004",
+            "C_108_2005",
+            "C_108_2006",
+            "C_108_2007",
+            "C_108_2012",
+            "C_108_2013",
+            "C_108_2014",
+            "C_108_2015",
+            "C_108_2018",
+            "C_108_2019",
+            "C_108_2022",
+            "C_108_2023",
+            "C_108_2025",
+            "C_108_2034",
+            "C_108_2035",
+            "C_108_2036",
+            "C_108_2037",
+            "C_108_2038",
+            "C_108_2039",
+            "C_108_2040",
+            "C_108_2041",
+            "C_108_2043",
+            "C_108_2045",
+            "C_108_2048",
+            "C_108_2049",
+            "C_108_2051",
+            "C_108_2125",
+            "C_108_2127",
+            "C_108_2129",
+            "C_108_2130",
+            "C_108_2132",
+            "C_108_2134",
+            "C_108_2136",
+            "C_108_2137",
+            "C_108_2139",
+            "C_108_2167",
+            "C_108_2168",
+            "C_108_2171",
+            "C_108_2172",
+            "C_108_2175",
+            "C_108_2176",
+            "C_108_2179",
+            "C_108_2180",
+            "C_108_2919_MD",
+            "C_108_2920_MD",
+            "C_108_2921_MD",
+            "C_108_2922_MD",
+            "C_108_2923_MD",
+            "C_108_2924_MD",
+            "C_108_2925_MD"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres-prod"
+        },
+        "definition": "WITH rule AS (\n  SELECT preprocessing_config::jsonb AS preprocessing_config,\n         regexp_split_to_array(replace(asset_ids, ' ', ''), ',')::text[] AS asset_ids,\n         regexp_split_to_array(replace(sensor, ' ', ''), ',')::text[] AS target_names\n  FROM sgp7.anomaly_rules\n  WHERE ruleid = 'LTCH-SYSTEM-GBR'\n),\ntargets AS (\n  SELECT DISTINCT unnest(target_names) AS sensor_name FROM rule\n),\nglobal_names AS (\n  SELECT DISTINCT jsonb_array_elements_text(\n    COALESCE(preprocessing_config->'global', '[]'::jsonb)\n  ) AS sensor_name\n  FROM rule\n),\nasset_extra AS (\n  SELECT entry.key AS asset_name,\n         jsonb_array_elements_text(entry.value->'sensors') AS sensor_name\n  FROM rule,\n       LATERAL jsonb_each(\n         COALESCE(preprocessing_config->'assets', '{}'::jsonb)\n       ) AS entry\n),\nassets AS (\n  SELECT am.asset_id, am.asset_name\n  FROM sgp7.asset_master am\n  JOIN rule r ON am.asset_id = ANY(r.asset_ids)\n),\nwanted AS (\n  SELECT a.asset_id, g.sensor_name\n  FROM assets a CROSS JOIN global_names g\n  UNION\n  SELECT a.asset_id, e.sensor_name\n  FROM assets a JOIN asset_extra e ON e.asset_name = a.asset_name\n  UNION\n  SELECT a.asset_id, t.sensor_name\n  FROM assets a CROSS JOIN targets t\n),\nresolved AS (\n  SELECT DISTINCT sm.sensor_id,\n         COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n         COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS label\n  FROM wanted w\n  JOIN sgp7.sensor_master sm\n    ON sm.asset_id = w.asset_id AND sm.sensor_name = w.sensor_name\n  JOIN sgp7.asset_master am ON am.asset_id = sm.asset_id\n)\nSELECT sensor_id AS __value, label AS __text\nFROM resolved\nORDER BY label",
+        "description": "Type to search. Multi-select sensors across any assets. Label format: AssetName | SensorName",
+        "includeAll": false,
+        "label": "Asset | Sensor",
+        "multi": true,
+        "name": "sensors",
+        "options": [],
+        "query": "WITH rule AS (\n  SELECT preprocessing_config::jsonb AS preprocessing_config,\n         regexp_split_to_array(replace(asset_ids, ' ', ''), ',')::text[] AS asset_ids,\n         regexp_split_to_array(replace(sensor, ' ', ''), ',')::text[] AS target_names\n  FROM sgp7.anomaly_rules\n  WHERE ruleid = 'LTCH-SYSTEM-GBR'\n),\ntargets AS (\n  SELECT DISTINCT unnest(target_names) AS sensor_name FROM rule\n),\nglobal_names AS (\n  SELECT DISTINCT jsonb_array_elements_text(\n    COALESCE(preprocessing_config->'global', '[]'::jsonb)\n  ) AS sensor_name\n  FROM rule\n),\nasset_extra AS (\n  SELECT entry.key AS asset_name,\n         jsonb_array_elements_text(entry.value->'sensors') AS sensor_name\n  FROM rule,\n       LATERAL jsonb_each(\n         COALESCE(preprocessing_config->'assets', '{}'::jsonb)\n       ) AS entry\n),\nassets AS (\n  SELECT am.asset_id, am.asset_name\n  FROM sgp7.asset_master am\n  JOIN rule r ON am.asset_id = ANY(r.asset_ids)\n),\nwanted AS (\n  SELECT a.asset_id, g.sensor_name\n  FROM assets a CROSS JOIN global_names g\n  UNION\n  SELECT a.asset_id, e.sensor_name\n  FROM assets a JOIN asset_extra e ON e.asset_name = a.asset_name\n  UNION\n  SELECT a.asset_id, t.sensor_name\n  FROM assets a CROSS JOIN targets t\n),\nresolved AS (\n  SELECT DISTINCT sm.sensor_id,\n         COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n         COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS label\n  FROM wanted w\n  JOIN sgp7.sensor_master sm\n    ON sm.asset_id = w.asset_id AND sm.sensor_name = w.sensor_name\n  JOIN sgp7.asset_master am ON am.asset_id = sm.asset_id\n)\nSELECT sensor_id AS __value, label AS __text\nFROM resolved\nORDER BY label",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Singapore",
+  "title": "SGP7 LT-CH System (LTCH-SYSTEM-GBR)",
+  "uid": "sgp7-ltch-system-gbr",
+  "version": 1,
+  "weekStart": ""
+}
