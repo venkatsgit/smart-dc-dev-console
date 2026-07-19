@@ -1,7 +1,7 @@
 # Smart DC Dev Console (Grafana) — Dev configuration
 ENVIRONMENT: dev
 NAMESPACE: smart-dc-dev
-GRAFANA_IMAGE: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.3.0
+GRAFANA_IMAGE: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.4.2
 PORT: 3000
 SERVICE_TYPE: ClusterIP
 DEVCONSOLE_PATH: /devconsole

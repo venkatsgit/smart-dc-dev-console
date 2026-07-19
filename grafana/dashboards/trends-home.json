@@ -1,0 +1,73 @@
+{
+  "uid": "trends-home",
+  "title": "Smart DC Trends",
+  "description": "Hub dashboard linking to all Smart DC Grafana trend dashboards. Embedded in Smart DC UI Trends menu (admin only).",
+  "tags": ["smart-dc", "hub", "trends"],
+  "timezone": "Asia/Singapore",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "refresh": "",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "weekStart": "",
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Smart DC Trends",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "# Smart DC Trends\n\nSelect a dashboard below to view site-specific trends. All dashboards use **Asia/Singapore** timezone and default to the last 24 hours."
+      },
+      "transparent": false
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "Shared",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 4 },
+      "options": {
+        "mode": "markdown",
+        "content": "## Shared\n\n- [Asset / Sensor Trends](/d/asset-sensor-trends/asset-sensor-trends) — Searchable multi-select asset and sensor trends with anomaly prediction overlay"
+      },
+      "transparent": false
+    },
+    {
+      "id": 3,
+      "type": "text",
+      "title": "SGP7",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "options": {
+        "mode": "markdown",
+        "content": "## SGP7\n\n- [Chiller Power](/d/sgp7-power/sgp7-chiller-power)\n- [Chiller Vibration](/d/sgp7-vibration/sgp7-chiller-vibration)\n- [Cooling System (GBR)](/d/sgp7-cooling-system-gbr/sgp7-cooling-system-cooling-system-gbr)\n- [LT-CH System (GBR)](/d/sgp7-ltch-system-gbr/sgp7-ltch-system-ltch-system-gbr)"
+      },
+      "transparent": false
+    },
+    {
+      "id": 4,
+      "type": "text",
+      "title": "SGP8",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "options": {
+        "mode": "markdown",
+        "content": "## SGP8\n\n- [Chiller Power](/d/sgp8-power/sgp8-chiller-power)\n- [Chiller Vibration](/d/sgp8-vibration/sgp8-chiller-vibration)\n- [HT-CH System (GBR)](/d/sgp8-htch-system-gbr/sgp8-ht-ch-system-htch-system-gbr)\n- [LT-CH System (GBR)](/d/sgp8-ltch-system-gbr/sgp8-lt-ch-system-ltch-system-gbr)"
+      },
+      "transparent": false
+    }
+  ]
+}
