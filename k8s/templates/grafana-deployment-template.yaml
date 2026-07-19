@@ -99,9 +99,9 @@ spec:
           value: "$PORT"
         - name: GF_SERVER_DOMAIN
           value: "$INGRESS_HOST"
-        # Ingress strips /devconsole via rewrite-target; keep SERVE_FROM_SUB_PATH false
+        # Use the secure proxy URL so link generation matches the browser domain
         - name: GF_SERVER_ROOT_URL
-          value: "http://$INGRESS_HOST$DEVCONSOLE_PATH/"
+          value: "https://athenadev.keppel.com$DEVCONSOLE_PATH/"
         - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "false"
         - name: GF_USERS_DEFAULT_THEME
