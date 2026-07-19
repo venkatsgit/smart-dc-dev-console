@@ -23,6 +23,8 @@ PG_PROD_HOST: kdch-sg-aiml-postgresql-01-c.postgres.database.azure.com
 PG_PROD_PORT: 5432
 PG_PROD_DATABASE: citus
 PG_PROD_USER: kdchdb005
+PG_PROD_PASSWORD: 2Tc2AUypdnFr
+
 # Grafana sqlite + settings persist on Azure Disk (managed-csi) — SQLite cannot run on Azure File.
 # Azure File share is mounted at /var/lib/grafana/dashboards-export for JSON exports.
 FILESHARE_NAME: dev-devconsole-grafana
