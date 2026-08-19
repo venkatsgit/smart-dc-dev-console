@@ -1,0 +1,209 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Site-wide SGP8 trends grouped by level. Includes target and context sensors for all GBR use cases matching the selected floor.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres-prod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "maxPerRow": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "\nWITH sensor_meta AS (\n  SELECT sm.sensor_id, r.ruleid as use_case\n  FROM sgp8.sensor_master sm\n  JOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\n  JOIN sgp8.anomaly_rules r ON am.asset_id = ANY(string_to_array(replace(r.asset_ids, ' ', ''), ','))\n  WHERE sm.sensor_id = '${sensors}'\n    AND r.ruleid LIKE 'KDCS8-' || '${level}' || '-ME-' || '%' AND r.ruleid LIKE '%-GBR%'\n    AND (\n      sm.sensor_name = ANY(string_to_array(replace(r.sensor, ' ', ''), ',')) OR\n      sm.sensor_name = ANY(ARRAY(SELECT jsonb_array_elements_text(COALESCE(r.preprocessing_config::jsonb->'global', '[]'::jsonb)))) OR\n      EXISTS (\n        SELECT 1 FROM jsonb_each(COALESCE(r.preprocessing_config::jsonb->'assets', '{}'::jsonb)) as e\n        WHERE e.key = am.asset_name AND sm.sensor_name = ANY(ARRAY(SELECT jsonb_array_elements_text(e.value->'sensors')))\n      )\n    )\n),\nhas_pred AS (\n  SELECT 1\n  FROM sgp8.anomaly_predictions p\n  JOIN sensor_meta sm ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\n  WHERE $__timeFilter(p.eventdatetime)\n  LIMIT 1\n)\nSELECT p.eventdatetime AS \"time\",\n       'actual' AS metric,\n       p.actual_value::double precision AS value\nFROM sgp8.anomaly_predictions p\nJOIN sensor_meta sm ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\nWHERE $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted' AS metric,\n       p.predicted_value::double precision AS value\nFROM sgp8.anomaly_predictions p\nJOIN sensor_meta sm ON sm.sensor_id = p.sensor_id AND sm.use_case = p.use_case\nWHERE $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM sgp8.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\n  AND NOT EXISTS (SELECT 1 FROM has_pred)\nORDER BY 1\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "${sensors:text}",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 40,
+  "tags": [
+    "smart-dc",
+    "sgp8",
+    "level",
+    "trends"
+  ],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres-prod"
+        },
+        "definition": "SELECT DISTINCT SUBSTRING(ruleid FROM 7 FOR 2) FROM sgp8.anomaly_rules WHERE ruleid LIKE 'KDCS8-%' AND ruleid LIKE '%-GBR%' ORDER BY 1",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Level",
+        "multi": false,
+        "name": "level",
+        "options": [],
+        "query": "SELECT DISTINCT SUBSTRING(ruleid FROM 7 FOR 2) FROM sgp8.anomaly_rules WHERE ruleid LIKE 'KDCS8-%' AND ruleid LIKE '%-GBR%' ORDER BY 1",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres-prod"
+        },
+        "definition": "\nWITH relevant_rules AS (\n  SELECT ruleid, preprocessing_config::jsonb as config, \n         sensor as targets,\n         asset_ids\n  FROM sgp8.anomaly_rules\n  WHERE ruleid LIKE 'KDCS8-' || '${level}' || '-ME-' || '%' AND ruleid LIKE '%-GBR%'\n),\ntargets AS (\n  SELECT DISTINCT ruleid, unnest(string_to_array(replace(targets, ' ', ''), ',')) AS sensor_name FROM relevant_rules\n),\nglobal_names AS (\n  SELECT DISTINCT ruleid, jsonb_array_elements_text(COALESCE(config->'global', '[]'::jsonb)) AS sensor_name FROM relevant_rules\n),\nasset_extra AS (\n  SELECT ruleid, entry.key AS asset_name, jsonb_array_elements_text(entry.value->'sensors') AS sensor_name\n  FROM relevant_rules, LATERAL jsonb_each(COALESCE(config->'assets', '{}'::jsonb)) AS entry\n),\nassets AS (\n  SELECT am.asset_id, am.asset_name, r.ruleid\n  FROM sgp8.asset_master am\n  JOIN relevant_rules r ON am.asset_id = ANY(string_to_array(replace(r.asset_ids, ' ', ''), ','))\n),\nwanted AS (\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM targets t\n  JOIN assets am ON am.ruleid = t.ruleid\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = t.sensor_name\n  UNION\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM global_names g\n  JOIN assets am ON am.ruleid = g.ruleid\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = g.sensor_name\n  UNION\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM asset_extra ae\n  JOIN assets am ON am.ruleid = ae.ruleid AND am.asset_name = ae.asset_name\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = ae.sensor_name\n)\nSELECT DISTINCT sensor_id AS __value,\n       COALESCE(NULLIF(asset_name, ''), sensor_id) || ' | ' || sensor_name AS __text\nFROM wanted\nORDER BY 2\n",
+        "hide": 0,
+        "includeAll": true,
+        "allValue": ".*",
+        "label": "Asset | Sensor",
+        "multi": true,
+        "name": "sensors",
+        "options": [],
+        "query": "\nWITH relevant_rules AS (\n  SELECT ruleid, preprocessing_config::jsonb as config, \n         sensor as targets,\n         asset_ids\n  FROM sgp8.anomaly_rules\n  WHERE ruleid LIKE 'KDCS8-' || '${level}' || '-ME-' || '%' AND ruleid LIKE '%-GBR%'\n),\ntargets AS (\n  SELECT DISTINCT ruleid, unnest(string_to_array(replace(targets, ' ', ''), ',')) AS sensor_name FROM relevant_rules\n),\nglobal_names AS (\n  SELECT DISTINCT ruleid, jsonb_array_elements_text(COALESCE(config->'global', '[]'::jsonb)) AS sensor_name FROM relevant_rules\n),\nasset_extra AS (\n  SELECT ruleid, entry.key AS asset_name, jsonb_array_elements_text(entry.value->'sensors') AS sensor_name\n  FROM relevant_rules, LATERAL jsonb_each(COALESCE(config->'assets', '{}'::jsonb)) AS entry\n),\nassets AS (\n  SELECT am.asset_id, am.asset_name, r.ruleid\n  FROM sgp8.asset_master am\n  JOIN relevant_rules r ON am.asset_id = ANY(string_to_array(replace(r.asset_ids, ' ', ''), ','))\n),\nwanted AS (\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM targets t\n  JOIN assets am ON am.ruleid = t.ruleid\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = t.sensor_name\n  UNION\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM global_names g\n  JOIN assets am ON am.ruleid = g.ruleid\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = g.sensor_name\n  UNION\n  SELECT sm.sensor_id, am.asset_name, sm.sensor_name\n  FROM asset_extra ae\n  JOIN assets am ON am.ruleid = ae.ruleid AND am.asset_name = ae.asset_name\n  JOIN sgp8.sensor_master sm ON sm.asset_id = am.asset_id AND sm.sensor_name = ae.sensor_name\n)\nSELECT DISTINCT sensor_id AS __value,\n       COALESCE(NULLIF(asset_name, ''), sensor_id) || ' | ' || sensor_name AS __text\nFROM wanted\nORDER BY 2\n",
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Singapore",
+  "title": "SGP8 Level Trends",
+  "uid": "sgp8-level-trends",
+  "version": 1,
+  "weekStart": ""
+}

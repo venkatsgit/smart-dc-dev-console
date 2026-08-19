@@ -1,4 +1,4 @@
-"""Generate production use-case dashboards from anomaly_rules configuration."""
+"""Generate production and dev use-case dashboards from anomaly_rules configuration."""
 
 from __future__ import annotations
 
@@ -10,23 +10,24 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE = ROOT / "grafana" / "dashboards" / "LT_CH_SYTEM_SGP8-1784259593666.json"
-DATASOURCE = {"type": "postgres", "uid": "smartdc-postgres-prod"}
+TEMPLATE = ROOT / "grafana" / "dashboards" / "sgp8-ltch-system-gbr.json"
 
 DASHBOARDS = (
     {
         "schema": "sgp7",
-        "rule_id": "COOLING-SYSTEM-GBR",
+        "rule_id": "COOLING-SYSTEM-GBR-TS",
         "uid": "sgp7-cooling-system-gbr",
-        "title": "SGP7 Cooling System (COOLING-SYSTEM-GBR)",
+        "title": "SGP7 Cooling System (COOLING-SYSTEM-GBR-TS)",
         "filename": "sgp7-cooling-system-gbr.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres-prod"},
     },
     {
         "schema": "sgp8",
-        "rule_id": "HTCH-SYSTEM-GBR",
+        "rule_id": "HTCH-SYSTEM-GBR-TS",
         "uid": "sgp8-htch-system-gbr",
-        "title": "SGP8 HT-CH System (HTCH-SYSTEM-GBR)",
+        "title": "SGP8 HT-CH System (HTCH-SYSTEM-GBR-TS)",
         "filename": "sgp8-htch-system-gbr.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres-prod"},
     },
     {
         "schema": "sgp7",
@@ -34,6 +35,32 @@ DASHBOARDS = (
         "uid": "sgp7-ltch-system-gbr",
         "title": "SGP7 LT-CH System (LTCH-SYSTEM-GBR)",
         "filename": "sgp7-ltch-system-gbr.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres-prod"},
+    },
+    {
+        "schema": "sgp8",
+        "rule_id": "LTCH-SYSTEM-GBR",
+        "uid": "sgp8-ltch-system-gbr",
+        "title": "SGP8 LT-CH System (LTCH-SYSTEM-GBR)",
+        "filename": "sgp8-ltch-system-gbr.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres-prod"},
+    },
+    # New Dev Dashboards with TS model
+    {
+        "schema": "sgp7_dev",
+        "rule_id": "LTCH-SYSTEM-GBR-TS",
+        "uid": "sgp7-ltch-system-gbr-ts",
+        "title": "SGP7 LT-CH System (LTCH-SYSTEM-GBR-TS)",
+        "filename": "sgp7-ltch-system-gbr-ts.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres"},
+    },
+    {
+        "schema": "sgp8_dev",
+        "rule_id": "LTCH-SYSTEM-GBR-TS",
+        "uid": "sgp8-ltch-system-gbr-ts",
+        "title": "SGP8 LT-CH System (LTCH-SYSTEM-GBR-TS)",
+        "filename": "sgp8-ltch-system-gbr-ts.json",
+        "datasource": {"type": "postgres", "uid": "smartdc-postgres"},
     },
 )
 
@@ -89,24 +116,31 @@ resolved AS (
 )"""
 
 
-def run_psql(sql: str) -> str:
+def run_psql(sql: str, datasource_uid: str) -> str:
     env = os.environ.copy()
-    env["PGPASSWORD"] = env.get("PG_PROD_PASSWORD") or env.get("PGPASSWORD", "")
+    
+    if datasource_uid == "smartdc-postgres-prod":
+        password = env.get("PG_PROD_PASSWORD") or env.get("PGPASSWORD", "2Tc2AUypdnFr")
+        host = env.get("PG_PROD_HOST", "kdch-sg-aiml-postgresql-01-c.postgres.database.azure.com")
+        port = env.get("PG_PROD_PORT", "5432")
+        user = env.get("PG_PROD_USER", "kdchdb005")
+        database = env.get("PG_PROD_DATABASE", "citus")
+    else:
+        password = env.get("PG_PASSWORD") or env.get("PGPASSWORD", "2Tc2AUypdnFr")
+        host = env.get("PG_HOST", "c.kdch-sg-aiml-postgresql-dev-02.postgres.database.azure.com")
+        port = env.get("PG_PORT", "5432")
+        user = env.get("PG_USER", "kdchdb005")
+        database = env.get("PG_DATABASE", "citus")
+
+    env["PGPASSWORD"] = password
     env.setdefault("PGSSLMODE", "require")
     env.setdefault("PGCONNECT_TIMEOUT", "10")
     command = [
         "psql",
-        "-h",
-        env.get(
-            "PG_PROD_HOST",
-            "kdch-sg-aiml-postgresql-01-c.postgres.database.azure.com",
-        ),
-        "-p",
-        env.get("PG_PROD_PORT", "5432"),
-        "-U",
-        env.get("PG_PROD_USER", "kdchdb005"),
-        "-d",
-        env.get("PG_PROD_DATABASE", "citus"),
+        "-h", host,
+        "-p", port,
+        "-U", user,
+        "-d", database,
         "-t",
         "-A",
         "-v",
@@ -123,7 +157,7 @@ def run_psql(sql: str) -> str:
     ).stdout.strip()
 
 
-def resolve_sensors(schema: str, rule_id: str) -> list[dict[str, str]]:
+def resolve_sensors(schema: str, rule_id: str, datasource_uid: str) -> list[dict[str, str]]:
     sql = (
         sensor_ctes(schema, rule_id)
         + """
@@ -136,7 +170,8 @@ SELECT COALESCE(
 )::text
 FROM resolved;"""
     )
-    return json.loads(run_psql(sql))
+    res = run_psql(sql, datasource_uid)
+    return json.loads(res) if res else []
 
 
 def variable_query(schema: str, rule_id: str) -> str:
@@ -187,9 +222,9 @@ ORDER BY 1"""
 
 
 def generate(config: dict[str, str], template: dict) -> None:
-    sensors = resolve_sensors(config["schema"], config["rule_id"])
+    sensors = resolve_sensors(config["schema"], config["rule_id"], config["datasource"]["uid"])
     if not sensors:
-        raise RuntimeError(f"No sensors resolved for {config['rule_id']}")
+        print(f"Warning: No sensors resolved for {config['rule_id']} in {config['schema']}")
 
     dashboard = copy.deepcopy(template)
     dashboard["id"] = None
@@ -212,15 +247,15 @@ def generate(config: dict[str, str], template: dict) -> None:
     dashboard["version"] = 1
 
     panel = dashboard["panels"][0]
-    panel["datasource"] = DATASOURCE
-    panel["targets"][0]["datasource"] = DATASOURCE
+    panel["datasource"] = config["datasource"]
+    panel["targets"][0]["datasource"] = config["datasource"]
     panel["targets"][0]["rawSql"] = series_query(
         config["schema"], config["rule_id"]
     )
 
     variable = dashboard["templating"]["list"][0]
     query = variable_query(config["schema"], config["rule_id"])
-    variable["datasource"] = DATASOURCE
+    variable["datasource"] = config["datasource"]
     variable["query"] = query
     variable["definition"] = query
     variable["current"] = {

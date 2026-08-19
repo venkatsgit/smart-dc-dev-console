@@ -1,0 +1,218 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "description": "Compares model versions for GBR rules between Dev and Prod databases for SGP7.",
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "usecase"
+          }
+        ]
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ruleid as usecase, COALESCE(inference_config->>'model_version', 'nil') as version_dev\nFROM sgp7_dev.anomaly_rules\nWHERE source_system = 'gbr_summarizer'\n  AND ruleid ILIKE '%${search}%'\nORDER BY ruleid",
+          "refId": "Dev"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ruleid as usecase, COALESCE(inference_config->>'model_version', 'nil') as version_prod\nFROM sgp7.anomaly_rules\nWHERE source_system = 'gbr_summarizer'\n  AND ruleid ILIKE '%${search}%'\nORDER BY ruleid",
+          "refId": "Prod"
+        }
+      ],
+      "title": "SGP7 Rule Version Status",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "version_dev": "Dev Version",
+              "version_prod": "Prod Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "description": "Compares model versions for GBR rules between Dev and Prod databases for SGP8.",
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "usecase"
+          }
+        ]
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ruleid as usecase, COALESCE(inference_config->>'model_version', 'nil') as version_dev\nFROM sgp8_dev.anomaly_rules\nWHERE source_system = 'gbr_summarizer'\n  AND ruleid ILIKE '%${search}%'\nORDER BY ruleid",
+          "refId": "Dev"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ruleid as usecase, COALESCE(inference_config->>'model_version', 'nil') as version_prod\nFROM sgp8.anomaly_rules\nWHERE source_system = 'gbr_summarizer'\n  AND ruleid ILIKE '%${search}%'\nORDER BY ruleid",
+          "refId": "Prod"
+        }
+      ],
+      "title": "SGP8 Rule Version Status",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "version_dev": "Dev Version",
+              "version_prod": "Prod Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "1h",
+  "schemaVersion": 39,
+  "tags": [
+    "smart-dc",
+    "gbr",
+    "version",
+    "status"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "SYSTEM",
+          "value": "SYSTEM"
+        },
+        "hide": 0,
+        "label": "Search Rule ID",
+        "name": "search",
+        "options": [
+          {
+            "selected": true,
+            "text": "SYSTEM",
+            "value": "SYSTEM"
+          }
+        ],
+        "query": "SYSTEM",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Singapore",
+  "title": "Rule Version Status",
+  "uid": "rule-version-status",
+  "version": 1,
+  "weekStart": ""
+}

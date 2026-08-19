@@ -43,7 +43,7 @@
       "gridPos": { "h": 4, "w": 24, "x": 0, "y": 4 },
       "options": {
         "mode": "markdown",
-        "content": "## Shared\n\n- [Asset / Sensor Trends](/d/asset-sensor-trends/asset-sensor-trends) — Searchable multi-select asset and sensor trends with anomaly prediction overlay"
+        "content": "## Shared\n\n- [Asset / Sensor Trends](/d/asset-sensor-trends/asset-sensor-trends) — Searchable multi-select asset and sensor trends with anomaly prediction overlay\n- [Rule Version Status](/d/rule-version-status/rule-version-status) — Compare GBR rule versions across Dev and Prod environments"
       },
       "transparent": false
     },
@@ -54,7 +54,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "options": {
         "mode": "markdown",
-        "content": "## SGP7\n\n- [Chiller Power](/d/sgp7-power/sgp7-chiller-power)\n- [Chiller Vibration](/d/sgp7-vibration/sgp7-chiller-vibration)\n- [Cooling System (GBR)](/d/sgp7-cooling-system-gbr/sgp7-cooling-system-cooling-system-gbr)\n- [LT-CH System (GBR)](/d/sgp7-ltch-system-gbr/sgp7-ltch-system-ltch-system-gbr)"
+        "content": "## SGP7\n\n- [Chiller Power](/d/sgp7-power/sgp7-chiller-power)\n- [Chiller Vibration](/d/sgp7-vibration/sgp7-chiller-vibration)\n- [Cooling System (GBR)](/d/sgp7-cooling-system-gbr/sgp7-cooling-system-cooling-system-gbr)\n- [LT-CH System (GBR)](/d/sgp7-ltch-system-gbr/sgp7-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp7-ltch-system-gbr-ts/sgp7-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp7-level-trends/sgp7-level-trends) — Unified floor trends for all DH usecases"
       },
       "transparent": false
     },
@@ -65,7 +65,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "options": {
         "mode": "markdown",
-        "content": "## SGP8\n\n- [Chiller Power](/d/sgp8-power/sgp8-chiller-power)\n- [Chiller Vibration](/d/sgp8-vibration/sgp8-chiller-vibration)\n- [HT-CH System (GBR)](/d/sgp8-htch-system-gbr/sgp8-ht-ch-system-htch-system-gbr)\n- [LT-CH System (GBR)](/d/sgp8-ltch-system-gbr/sgp8-lt-ch-system-ltch-system-gbr)"
+        "content": "## SGP8\n\n- [Chiller Power](/d/sgp8-power/sgp8-chiller-power)\n- [Chiller Vibration](/d/sgp8-vibration/sgp8-chiller-vibration)\n- [HT-CH System (GBR)](/d/sgp8-htch-system-gbr/sgp8-ht-ch-system-htch-system-gbr)\n- [LT-CH System (GBR)](/d/sgp8-ltch-system-gbr/sgp8-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp8-ltch-system-gbr-ts/sgp8-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp8-level-trends/sgp8-level-trends) — Unified floor trends for all DH usecases"
       },
       "transparent": false
     }

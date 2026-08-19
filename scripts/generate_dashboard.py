@@ -11,42 +11,42 @@ SENSORS_Q = (
     "SELECT sm.sensor_id AS __value, "
     "COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || "
     "COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text "
-    "FROM sgp7_dev.sensor_master sm "
-    "INNER JOIN sgp7_dev.asset_master am ON am.asset_id = sm.asset_id "
+    "FROM ${schema}.sensor_master sm "
+    "INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id "
     "ORDER BY 2"
 )
 
 # Panel repeats on $sensors — each instance is one sensor_id.
 SERIES_SQL = """WITH has_pred AS (
   SELECT 1
-  FROM sgp7_dev.anomaly_predictions p
+  FROM ${schema}.anomaly_predictions p
   WHERE p.sensor_id = '${sensors}'
-    AND p.use_case = 'COOLING-SYSTEM-GBR'
+    AND p.use_case LIKE '%-GBR-TS'
     AND $__timeFilter(p.eventdatetime)
   LIMIT 1
 )
 SELECT p.eventdatetime AS "time",
        'actual' AS metric,
        p.actual_value::double precision AS value
-FROM sgp7_dev.anomaly_predictions p
+FROM ${schema}.anomaly_predictions p
 WHERE p.sensor_id = '${sensors}'
-  AND p.use_case = 'COOLING-SYSTEM-GBR'
+  AND p.use_case LIKE '%-GBR-TS'
   AND $__timeFilter(p.eventdatetime)
   AND EXISTS (SELECT 1 FROM has_pred)
 UNION ALL
 SELECT p.eventdatetime AS "time",
        'predicted' AS metric,
        p.predicted_value::double precision AS value
-FROM sgp7_dev.anomaly_predictions p
+FROM ${schema}.anomaly_predictions p
 WHERE p.sensor_id = '${sensors}'
-  AND p.use_case = 'COOLING-SYSTEM-GBR'
+  AND p.use_case LIKE '%-GBR-TS'
   AND $__timeFilter(p.eventdatetime)
   AND EXISTS (SELECT 1 FROM has_pred)
 UNION ALL
 SELECT t.eventdatetime AS "time",
        'telemetry' AS metric,
        t.value::double precision AS value
-FROM sgp7_dev.telemetry_sensors_1min_agg t
+FROM ${schema}.telemetry_sensors_1min_agg t
 WHERE t.sensorid = '${sensors}'
   AND $__timeFilter(t.eventdatetime)
   AND NOT EXISTS (SELECT 1 FROM has_pred)
@@ -58,15 +58,15 @@ def main() -> None:
         "uid": "asset-sensor-trends",
         "title": "Asset / Sensor Trends",
         "description": (
-            "sgp7_dev trends: one searchable multi-select of Asset | Sensor. "
+            "Multi-schema trends: one searchable multi-select of Asset | Sensor. "
             "One graph per selected sensor. Anomaly predictions show actual + "
             "predicted; others use telemetry_sensors_1min_agg. "
             "Default last 24 hours (SGT)."
         ),
-        "tags": ["smart-dc", "sgp7_dev", "trends"],
+        "tags": ["smart-dc", "trends"],
         "timezone": "Asia/Singapore",
         "schemaVersion": 39,
-        "version": 7,
+        "version": 8,
         "editable": True,
         "fiscalYearStartMonth": 0,
         "graphTooltip": 1,
@@ -79,6 +79,25 @@ def main() -> None:
         "annotations": {"list": []},
         "templating": {
             "list": [
+                {
+                    "name": "schema",
+                    "label": "Schema",
+                    "type": "custom",
+                    "datasource": None,
+                    "query": "sgp7,sgp8,sgp7_dev,sgp8_dev",
+                    "options": [
+                        {"text": "sgp7", "value": "sgp7"},
+                        {"text": "sgp8", "value": "sgp8"},
+                        {"text": "sgp7_dev", "value": "sgp7_dev", "selected": True},
+                        {"text": "sgp8_dev", "value": "sgp8_dev"},
+                    ],
+                    "current": {"text": "sgp7_dev", "value": "sgp7_dev"},
+                    "hide": 0,
+                    "includeAll": False,
+                    "multi": False,
+                    "refresh": 1,
+                    "skipUrlSync": False,
+                },
                 {
                     "name": "sensors",
                     "label": "Asset | Sensor",

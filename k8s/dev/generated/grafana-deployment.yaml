@@ -28,7 +28,7 @@ spec:
           - 0
       containers:
       - name: grafana
-        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.4.2
+        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.5.9
         imagePullPolicy: Always
         ports:
         - name: http
@@ -99,9 +99,9 @@ spec:
           value: "3000"
         - name: GF_SERVER_DOMAIN
           value: "4.144.173.96"
-        # Ingress strips /devconsole via rewrite-target; keep SERVE_FROM_SUB_PATH false
+        # Use the secure proxy URL so link generation matches the browser domain
         - name: GF_SERVER_ROOT_URL
-          value: "http://4.144.173.96/devconsole/"
+          value: "https://athenadev.keppel.com/devconsole/"
         - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "false"
         - name: GF_USERS_DEFAULT_THEME
