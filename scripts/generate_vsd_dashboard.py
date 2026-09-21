@@ -1,90 +1,122 @@
-"""Generate Asset / Sensor Trends dashboards (dev + prod)."""
+"""Generate SGP8 VSD dashboard from sgp8_dev sensor_master (all VSD sensors)."""
+
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from pathlib import Path
 
-SENSORS_Q = (
-    "SELECT sm.sensor_id AS __value, "
-    "COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || "
-    "COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text "
-    "FROM ${schema}.sensor_master sm "
-    "INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id "
-    "ORDER BY 2"
-)
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "grafana" / "dashboards" / "sgp8-vsd.json"
+DS = {"type": "postgres", "uid": "smartdc-postgres"}
+SCHEMA = "sgp8_dev"
 
-# Panel repeats on $sensors. Source dropdown selects table with no auto-fallback.
-SERIES_SQL = """SELECT t.eventdatetime AS "time",
+SENSORS_Q = f"""SELECT sm.sensor_id AS __value,
+       COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||
+       COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text
+FROM {SCHEMA}.sensor_master sm
+INNER JOIN {SCHEMA}.asset_master am ON am.asset_id = sm.asset_id
+WHERE sm.sensor_name ILIKE '%VSD%'
+   OR COALESCE(sm.description, '') ILIKE '%VSD%'
+ORDER BY am.asset_name, sm.sensor_name"""
+
+SERIES_SQL = f"""SELECT t.eventdatetime AS "time",
        'telemetry' AS metric,
        t.value::double precision AS value
-FROM ${schema}.telemetry_sensors_1min_agg t
-WHERE t.sensorid = '${sensors}'
-  AND '${source}' = 'telemetry'
+FROM {SCHEMA}.telemetry_sensors_1min_agg t
+WHERE t.sensorid = '${{sensors}}'
+  AND '${{source}}' = 'telemetry'
   AND $__timeFilter(t.eventdatetime)
 UNION ALL
 SELECT p.eventdatetime AS "time",
        'actual (' || p.use_case || ')' AS metric,
        p.actual_value::double precision AS value
-FROM ${schema}.anomaly_predictions p
-WHERE p.sensor_id = '${sensors}'
-  AND '${source}' = 'anomaly_predictions'
+FROM {SCHEMA}.anomaly_predictions p
+WHERE p.sensor_id = '${{sensors}}'
+  AND '${{source}}' = 'anomaly_predictions'
   AND $__timeFilter(p.eventdatetime)
 UNION ALL
 SELECT p.eventdatetime AS "time",
        'predicted (' || p.use_case || ')' AS metric,
        p.predicted_value::double precision AS value
-FROM ${schema}.anomaly_predictions p
-WHERE p.sensor_id = '${sensors}'
-  AND '${source}' = 'anomaly_predictions'
+FROM {SCHEMA}.anomaly_predictions p
+WHERE p.sensor_id = '${{sensors}}'
+  AND '${{source}}' = 'anomaly_predictions'
   AND $__timeFilter(p.eventdatetime)
 ORDER BY 1"""
 
-DASHBOARDS = (
-    {
-        "uid": "asset-sensor-trends-dev",
-        "title": "Asset / Sensor Trends (Dev)",
-        "filename": "asset-sensor-trends-dev.json",
-        "ds_uid": "smartdc-postgres",
-        "schemas": ("sgp7_dev", "sgp8_dev"),
-        "default_schema": "sgp7_dev",
-        "env_label": "Dev",
-    },
-    {
-        "uid": "asset-sensor-trends-prod",
-        "title": "Asset / Sensor Trends (Prod)",
-        "filename": "asset-sensor-trends-prod.json",
-        "ds_uid": "smartdc-postgres-prod",
-        "schemas": ("sgp7", "sgp8"),
-        "default_schema": "sgp7",
-        "env_label": "Prod",
-    },
-)
 
-
-def build_dashboard(config: dict) -> dict:
-    ds = {"type": "postgres", "uid": config["ds_uid"]}
-    schemas = list(config["schemas"])
-    default = config["default_schema"]
-    schema_query = ",".join(schemas)
-    schema_options = [
-        {
-            "text": s,
-            "value": s,
-            **({"selected": True} if s == default else {}),
-        }
-        for s in schemas
-    ]
-
-    return {
-        "uid": config["uid"],
-        "title": config["title"],
-        "description": (
-            f"{config['env_label']} Asset / Sensor trends: Schema + Source "
-            "(telemetry or anomaly_predictions) + searchable multi-select "
-            "Asset | Sensor. One graph per selected sensor. No auto-fallback — "
-            "Source picks the table directly. Default last 24 hours (SGT)."
+def run_psql(sql: str) -> str:
+    env = os.environ.copy()
+    env["PGPASSWORD"] = env.get("PG_PASSWORD") or env.get(
+        "PGPASSWORD", "2Tc2AUypdnFr"
+    )
+    env.setdefault("PGSSLMODE", "require")
+    env.setdefault("PGCONNECT_TIMEOUT", "10")
+    command = [
+        "psql",
+        "-h",
+        env.get(
+            "PG_HOST",
+            "c.kdch-sg-aiml-postgresql-dev-02.postgres.database.azure.com",
         ),
-        "tags": ["smart-dc", "trends", config["env_label"].lower()],
+        "-p",
+        env.get("PG_PORT", "5432"),
+        "-U",
+        env.get("PG_USER", "kdchdb005"),
+        "-d",
+        env.get("PG_DATABASE", "citus"),
+        "-t",
+        "-A",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        sql,
+    ]
+    return subprocess.run(
+        command, env=env, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def resolve_sensors() -> list[dict[str, str]]:
+    sql = f"""
+WITH resolved AS (
+  SELECT sm.sensor_id,
+         COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||
+         COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS label
+  FROM {SCHEMA}.sensor_master sm
+  INNER JOIN {SCHEMA}.asset_master am ON am.asset_id = sm.asset_id
+  WHERE sm.sensor_name ILIKE '%VSD%'
+     OR COALESCE(sm.description, '') ILIKE '%VSD%'
+)
+SELECT COALESCE(
+  jsonb_agg(
+    jsonb_build_object('value', sensor_id, 'text', label)
+    ORDER BY label
+  ),
+  '[]'::jsonb
+)::text
+FROM resolved;
+"""
+    return json.loads(run_psql(sql) or "[]")
+
+
+def main() -> None:
+    sensors = resolve_sensors()
+    if not sensors:
+        raise RuntimeError("No VSD sensors resolved in sgp8_dev")
+
+    dashboard = {
+        "uid": "sgp8-vsd",
+        "title": "SGP8 VSD Trends (Dev)",
+        "description": (
+            "SGP8_DEV Variable Speed Drive trends for cooling towers and "
+            "related pumps. All VSD sensors selected by default. Source "
+            "dropdown chooses telemetry or anomaly_predictions directly. "
+            "Default last 24 hours (SGT)."
+        ),
+        "tags": ["smart-dc", "sgp8", "sgp8_dev", "vsd", "trends"],
         "timezone": "Asia/Singapore",
         "schemaVersion": 39,
         "version": 1,
@@ -101,25 +133,11 @@ def build_dashboard(config: dict) -> dict:
         "templating": {
             "list": [
                 {
-                    "name": "schema",
-                    "label": "Schema",
-                    "type": "custom",
-                    "datasource": None,
-                    "query": schema_query,
-                    "options": schema_options,
-                    "current": {"text": default, "value": default},
-                    "hide": 0,
-                    "includeAll": False,
-                    "multi": False,
-                    "refresh": 1,
-                    "skipUrlSync": False,
-                },
-                {
                     "name": "source",
                     "label": "Source",
                     "description": (
-                        "Query telemetry_sensors_1min_agg or anomaly_predictions "
-                        "directly (no auto-fallback)."
+                        "Query telemetry_sensors_1min_agg or "
+                        "anomaly_predictions directly (no auto-fallback)."
                     ),
                     "type": "custom",
                     "datasource": None,
@@ -149,14 +167,17 @@ def build_dashboard(config: dict) -> dict:
                     "name": "sensors",
                     "label": "Asset | Sensor",
                     "description": (
-                        "Type to search. Multi-select sensors across any assets. "
-                        "Label format: AssetName | SensorName"
+                        "All VSD sensors on sgp8_dev Cooling System assets. "
+                        "Label: AssetName | SensorName"
                     ),
                     "type": "query",
-                    "datasource": ds,
+                    "datasource": DS,
                     "query": SENSORS_Q,
                     "definition": SENSORS_Q,
-                    "current": {},
+                    "current": {
+                        "text": [s["text"] for s in sensors],
+                        "value": [s["value"] for s in sensors],
+                    },
                     "hide": 0,
                     "includeAll": False,
                     "multi": True,
@@ -164,6 +185,7 @@ def build_dashboard(config: dict) -> dict:
                     "regex": "",
                     "skipUrlSync": False,
                     "sort": 1,
+                    "options": [],
                 },
             ]
         },
@@ -176,7 +198,7 @@ def build_dashboard(config: dict) -> dict:
                 "repeatDirection": "h",
                 "maxPerRow": 2,
                 "gridPos": {"h": 10, "w": 12, "x": 0, "y": 0},
-                "datasource": ds,
+                "datasource": DS,
                 "fieldConfig": {
                     "defaults": {
                         "color": {"mode": "palette-classic"},
@@ -219,7 +241,7 @@ def build_dashboard(config: dict) -> dict:
                 "targets": [
                     {
                         "refId": "A",
-                        "datasource": ds,
+                        "datasource": DS,
                         "editorMode": "code",
                         "format": "time_series",
                         "rawQuery": True,
@@ -230,15 +252,9 @@ def build_dashboard(config: dict) -> dict:
         ],
     }
 
-
-def main() -> None:
-    out_dir = Path(__file__).resolve().parents[1] / "grafana" / "dashboards"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for config in DASHBOARDS:
-        dashboard = build_dashboard(config)
-        out = out_dir / config["filename"]
-        out.write_text(json.dumps(dashboard, indent=2) + "\n", encoding="utf-8")
-        print(f"Wrote {out}")
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(dashboard, indent=2) + "\n", encoding="utf-8")
+    print(f"Wrote {OUT.name}: {len(sensors)} sensors")
 
 
 if __name__ == "__main__":

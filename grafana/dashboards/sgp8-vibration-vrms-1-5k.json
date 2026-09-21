@@ -1,0 +1,296 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "SGP8 vibration trends: horizontal and vertical VRMS 1-5k sensors for chiller, CWP, and CHWP across nine chillers.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres-prod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "maxPerRow": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres-prod"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM sgp8.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\nORDER BY 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "${sensors:text}",
+      "type": "timeseries",
+      "description": "Horizontal/vertical 1 5k from 1-minute telemetry."
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 40,
+  "tags": [
+    "smart-dc",
+    "sgp8",
+    "vibration-vrms-1-5k",
+    "chiller"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": [
+            "HT-CH-01 | HT-CH-01-CHWP-H-VRMS-1-5K",
+            "HT-CH-01 | HT-CH-01-CHWP-V-VRMS-1-5K",
+            "HT-CH-01 | HT-CH-01-CWP-H-VRMS-1-5K",
+            "HT-CH-01 | HT-CH-01-CWP-V-VRMS-1-5K",
+            "HT-CH-01 | HT-CH-01-H-VRMS-1-5K",
+            "HT-CH-01 | HT-CH-01-V-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-CHWP-H-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-CHWP-V-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-CWP-H-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-CWP-V-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-H-VRMS-1-5K",
+            "HT-CH-02 | HT-CH-02-V-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-CHWP-H-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-CHWP-V-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-CWP-H-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-CWP-V-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-H-VRMS-1-5K",
+            "HT-CH-03 | HT-CH-03-V-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-CHWP-H-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-CHWP-V-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-CWP-H-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-CWP-V-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-H-VRMS-1-5K",
+            "HT-CH-04 | HT-CH-04-V-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-CHWP-H-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-CHWP-V-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-CWP-H-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-CWP-V-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-H-VRMS-1-5K",
+            "HT-CH-05 | HT-CH-05-V-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-CHWP-H-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-CHWP-V-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-CWP-H-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-CWP-V-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-H-VRMS-1-5K",
+            "HT-CH-06 | HT-CH-06-V-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-CHWP-H-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-CHWP-V-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-CWP-H-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-CWP-V-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-H-VRMS-1-5K",
+            "HT-CH-07 | HT-CH-07-V-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-CHWP-H-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-CHWP-V-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-CWP-H-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-CWP-V-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-H-VRMS-1-5K",
+            "LT-CH-01 | LT-CH-01-V-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-CHWP-H-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-CHWP-V-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-CWP-H-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-CWP-V-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-H-VRMS-1-5K",
+            "LT-CH-02 | LT-CH-02-V-VRMS-1-5K"
+          ],
+          "value": [
+            "D_100_2931",
+            "D_100_2928",
+            "D_100_2937",
+            "D_100_2934",
+            "D_100_2925",
+            "D_100_2922",
+            "D_101_2931",
+            "D_101_2928",
+            "D_101_2937",
+            "D_101_2934",
+            "D_101_2925",
+            "D_101_2922",
+            "D_102_2931",
+            "D_102_2928",
+            "D_102_2937",
+            "D_102_2934",
+            "D_102_2925",
+            "D_102_2922",
+            "D_103_2931",
+            "D_103_2928",
+            "D_103_2937",
+            "D_103_2934",
+            "D_103_2925",
+            "D_103_2922",
+            "D_104_2931",
+            "D_104_2928",
+            "D_104_2937",
+            "D_104_2934",
+            "D_104_2925",
+            "D_104_2922",
+            "D_105_2931",
+            "D_105_2928",
+            "D_105_2937",
+            "D_105_2934",
+            "D_105_2925",
+            "D_105_2922",
+            "D_106_2931",
+            "D_106_2928",
+            "D_106_2937",
+            "D_106_2934",
+            "D_106_2925",
+            "D_106_2922",
+            "D_110_2931",
+            "D_110_2928",
+            "D_110_2937",
+            "D_110_2934",
+            "D_110_2925",
+            "D_110_2922",
+            "D_111_2931",
+            "D_111_2928",
+            "D_111_2937",
+            "D_111_2934",
+            "D_111_2925",
+            "D_111_2922"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres-prod"
+        },
+        "definition": "SELECT sm.sensor_id AS __value,\n       COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n       COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text\nFROM sgp8.sensor_master sm\nJOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\nWHERE sm.asset_id IN ('D_100','D_101','D_102','D_103','D_104','D_105','D_106','D_110','D_111')\n  AND sm.sensor_name ~ '^(HT|LT)-CH-[0-9]{2}-(H-VRMS-1-5K|V-VRMS-1-5K|CWP-H-VRMS-1-5K|CWP-V-VRMS-1-5K|CHWP-H-VRMS-1-5K|CHWP-V-VRMS-1-5K)$'\nORDER BY am.asset_name, sm.sensor_name",
+        "description": "Search and multi-select vibration sensors across nine chillers.",
+        "includeAll": false,
+        "label": "Asset | Sensor",
+        "multi": true,
+        "name": "sensors",
+        "options": [],
+        "query": "SELECT sm.sensor_id AS __value,\n       COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' ||\n       COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text\nFROM sgp8.sensor_master sm\nJOIN sgp8.asset_master am ON am.asset_id = sm.asset_id\nWHERE sm.asset_id IN ('D_100','D_101','D_102','D_103','D_104','D_105','D_106','D_110','D_111')\n  AND sm.sensor_name ~ '^(HT|LT)-CH-[0-9]{2}-(H-VRMS-1-5K|V-VRMS-1-5K|CWP-H-VRMS-1-5K|CWP-V-VRMS-1-5K|CHWP-H-VRMS-1-5K|CHWP-V-VRMS-1-5K)$'\nORDER BY am.asset_name, sm.sensor_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "Asia/Singapore",
+  "title": "SGP8 Chiller Vibration Vrms 1-5k",
+  "uid": "sgp8-vibration-vrms-1-5k",
+  "version": 1,
+  "weekStart": ""
+}

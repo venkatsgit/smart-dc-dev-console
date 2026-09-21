@@ -28,7 +28,7 @@ spec:
           - 0
       containers:
       - name: grafana
-        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.5.9
+        image: aimlsgkdchregistrydev.azurecr.io/smart-dc-dev-console:v1.6.3
         imagePullPolicy: Always
         ports:
         - name: http

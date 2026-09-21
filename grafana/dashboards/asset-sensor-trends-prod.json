@@ -1,14 +1,15 @@
 {
-  "uid": "asset-sensor-trends",
-  "title": "Asset / Sensor Trends",
-  "description": "Multi-schema trends: one searchable multi-select of Asset | Sensor. One graph per selected sensor. Anomaly predictions show actual + predicted; others use telemetry_sensors_1min_agg. Default last 24 hours (SGT).",
+  "uid": "asset-sensor-trends-prod",
+  "title": "Asset / Sensor Trends (Prod)",
+  "description": "Prod Asset / Sensor trends: Schema + Source (telemetry or anomaly_predictions) + searchable multi-select Asset | Sensor. One graph per selected sensor. No auto-fallback \u2014 Source picks the table directly. Default last 24 hours (SGT).",
   "tags": [
     "smart-dc",
-    "trends"
+    "trends",
+    "prod"
   ],
   "timezone": "Asia/Singapore",
   "schemaVersion": 39,
-  "version": 8,
+  "version": 1,
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -31,29 +32,49 @@
         "label": "Schema",
         "type": "custom",
         "datasource": null,
-        "query": "sgp7,sgp8,sgp7_dev,sgp8_dev",
+        "query": "sgp7,sgp8",
         "options": [
           {
             "text": "sgp7",
-            "value": "sgp7"
+            "value": "sgp7",
+            "selected": true
           },
           {
             "text": "sgp8",
             "value": "sgp8"
-          },
-          {
-            "text": "sgp7_dev",
-            "value": "sgp7_dev",
-            "selected": true
-          },
-          {
-            "text": "sgp8_dev",
-            "value": "sgp8_dev"
           }
         ],
         "current": {
-          "text": "sgp7_dev",
-          "value": "sgp7_dev"
+          "text": "sgp7",
+          "value": "sgp7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "skipUrlSync": false
+      },
+      {
+        "name": "source",
+        "label": "Source",
+        "description": "Query telemetry_sensors_1min_agg or anomaly_predictions directly (no auto-fallback).",
+        "type": "custom",
+        "datasource": null,
+        "query": "telemetry,anomaly_predictions",
+        "options": [
+          {
+            "text": "telemetry",
+            "value": "telemetry",
+            "selected": true
+          },
+          {
+            "text": "anomaly_predictions",
+            "value": "anomaly_predictions"
+          }
+        ],
+        "current": {
+          "text": "telemetry",
+          "value": "telemetry"
         },
         "hide": 0,
         "includeAll": false,
@@ -68,7 +89,7 @@
         "type": "query",
         "datasource": {
           "type": "postgres",
-          "uid": "smartdc-postgres"
+          "uid": "smartdc-postgres-prod"
         },
         "query": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM ${schema}.sensor_master sm INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
         "definition": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM ${schema}.sensor_master sm INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
@@ -99,7 +120,7 @@
       },
       "datasource": {
         "type": "postgres",
-        "uid": "smartdc-postgres"
+        "uid": "smartdc-postgres-prod"
       },
       "fieldConfig": {
         "defaults": {
@@ -160,12 +181,12 @@
           "refId": "A",
           "datasource": {
             "type": "postgres",
-            "uid": "smartdc-postgres"
+            "uid": "smartdc-postgres-prod"
           },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH has_pred AS (\n  SELECT 1\n  FROM ${schema}.anomaly_predictions p\n  WHERE p.sensor_id = '${sensors}'\n    AND p.use_case LIKE '%-GBR-TS'\n    AND $__timeFilter(p.eventdatetime)\n  LIMIT 1\n)\nSELECT p.eventdatetime AS \"time\",\n       'actual' AS metric,\n       p.actual_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND p.use_case LIKE '%-GBR-TS'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted' AS metric,\n       p.predicted_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND p.use_case LIKE '%-GBR-TS'\n  AND $__timeFilter(p.eventdatetime)\n  AND EXISTS (SELECT 1 FROM has_pred)\nUNION ALL\nSELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM ${schema}.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND $__timeFilter(t.eventdatetime)\n  AND NOT EXISTS (SELECT 1 FROM has_pred)\nORDER BY 1"
+          "rawSql": "SELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM ${schema}.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND '${source}' = 'telemetry'\n  AND $__timeFilter(t.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'actual (' || p.use_case || ')' AS metric,\n       p.actual_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND '${source}' = 'anomaly_predictions'\n  AND $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted (' || p.use_case || ')' AS metric,\n       p.predicted_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND '${source}' = 'anomaly_predictions'\n  AND $__timeFilter(p.eventdatetime)\nORDER BY 1"
         }
       ]
     }

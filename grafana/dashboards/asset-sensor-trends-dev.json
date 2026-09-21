@@ -1,0 +1,194 @@
+{
+  "uid": "asset-sensor-trends-dev",
+  "title": "Asset / Sensor Trends (Dev)",
+  "description": "Dev Asset / Sensor trends: Schema + Source (telemetry or anomaly_predictions) + searchable multi-select Asset | Sensor. One graph per selected sensor. No auto-fallback \u2014 Source picks the table directly. Default last 24 hours (SGT).",
+  "tags": [
+    "smart-dc",
+    "trends",
+    "dev"
+  ],
+  "timezone": "Asia/Singapore",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "weekStart": "",
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "schema",
+        "label": "Schema",
+        "type": "custom",
+        "datasource": null,
+        "query": "sgp7_dev,sgp8_dev",
+        "options": [
+          {
+            "text": "sgp7_dev",
+            "value": "sgp7_dev",
+            "selected": true
+          },
+          {
+            "text": "sgp8_dev",
+            "value": "sgp8_dev"
+          }
+        ],
+        "current": {
+          "text": "sgp7_dev",
+          "value": "sgp7_dev"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "skipUrlSync": false
+      },
+      {
+        "name": "source",
+        "label": "Source",
+        "description": "Query telemetry_sensors_1min_agg or anomaly_predictions directly (no auto-fallback).",
+        "type": "custom",
+        "datasource": null,
+        "query": "telemetry,anomaly_predictions",
+        "options": [
+          {
+            "text": "telemetry",
+            "value": "telemetry",
+            "selected": true
+          },
+          {
+            "text": "anomaly_predictions",
+            "value": "anomaly_predictions"
+          }
+        ],
+        "current": {
+          "text": "telemetry",
+          "value": "telemetry"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "skipUrlSync": false
+      },
+      {
+        "name": "sensors",
+        "label": "Asset | Sensor",
+        "description": "Type to search. Multi-select sensors across any assets. Label format: AssetName | SensorName",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "smartdc-postgres"
+        },
+        "query": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM ${schema}.sensor_master sm INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
+        "definition": "SELECT sm.sensor_id AS __value, COALESCE(NULLIF(am.asset_name, ''), am.asset_id) || ' | ' || COALESCE(NULLIF(sm.sensor_name, ''), sm.sensor_id) AS __text FROM ${schema}.sensor_master sm INNER JOIN ${schema}.asset_master am ON am.asset_id = sm.asset_id ORDER BY 2",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": true,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "${sensors:text}",
+      "repeat": "sensors",
+      "repeatDirection": "h",
+      "maxPerRow": 2,
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "smartdc-postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "smartdc-postgres"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT t.eventdatetime AS \"time\",\n       'telemetry' AS metric,\n       t.value::double precision AS value\nFROM ${schema}.telemetry_sensors_1min_agg t\nWHERE t.sensorid = '${sensors}'\n  AND '${source}' = 'telemetry'\n  AND $__timeFilter(t.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'actual (' || p.use_case || ')' AS metric,\n       p.actual_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND '${source}' = 'anomaly_predictions'\n  AND $__timeFilter(p.eventdatetime)\nUNION ALL\nSELECT p.eventdatetime AS \"time\",\n       'predicted (' || p.use_case || ')' AS metric,\n       p.predicted_value::double precision AS value\nFROM ${schema}.anomaly_predictions p\nWHERE p.sensor_id = '${sensors}'\n  AND '${source}' = 'anomaly_predictions'\n  AND $__timeFilter(p.eventdatetime)\nORDER BY 1"
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "SGP7 vibration trends for chiller, CWP, and CHWP horizontal and vertical acceleration sensors across seven HT and two LT chillers.",
+  "description": "SGP7 vibration trends: horizontal and vertical acceleration sensors for chiller, CWP, and CHWP across nine chillers.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -144,7 +144,7 @@
   "tags": [
     "smart-dc",
     "sgp7",
-    "vibration",
+    "vibration-acc",
     "chiller"
   ],
   "templating": {
@@ -289,8 +289,8 @@
   },
   "timepicker": {},
   "timezone": "Asia/Singapore",
-  "title": "SGP7 Chiller Vibration",
-  "uid": "sgp7-vibration",
+  "title": "SGP7 Chiller Vibration Acc",
+  "uid": "sgp7-vibration-acc",
   "version": 1,
   "weekStart": ""
 }

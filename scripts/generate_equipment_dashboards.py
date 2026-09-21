@@ -19,10 +19,22 @@ SITE_CONFIG = {
             "'C_100','C_101','C_102','C_103','C_104',"
             "'C_105','C_106','C_107','C_108'"
         ),
-        "vibration_filter": (
+        "vibration-acc_filter": (
             "sm.sensor_name IN "
             "('CH-H-A','CH-V-A','CH-CWP-H-A','CH-CWP-V-A',"
             "'CH-CHWP-H-A','CH-CHWP-V-A')"
+        ),
+        "vibration-vrms-0-1k_filter": (
+            "sm.sensor_name IN "
+            "('CH-H-VRMS-0-1K','CH-V-VRMS-0-1K',"
+            "'CH-CWP-H-VRMS-0-1K','CH-CWP-V-VRMS-0-1K',"
+            "'CH-CHWP-H-VRMS-0-1K','CH-CHWP-V-VRMS-0-1K')"
+        ),
+        "vibration-vrms-1-5k_filter": (
+            "sm.sensor_name IN "
+            "('CH-H-VRMS-1-5K','CH-V-VRMS-1-5K',"
+            "'CH-CWP-H-VRMS-1-5K','CH-CWP-V-VRMS-1-5K',"
+            "'CH-CHWP-H-VRMS-1-5K','CH-CHWP-V-VRMS-1-5K')"
         ),
         "ht_system_use_case": "COOLING-SYSTEM-GBR-TS",
     },
@@ -31,10 +43,22 @@ SITE_CONFIG = {
             "'D_100','D_101','D_102','D_103','D_104',"
             "'D_105','D_106','D_110','D_111'"
         ),
-        "vibration_filter": (
+        "vibration-acc_filter": (
             "sm.sensor_name ~ "
             "'^(HT|LT)-CH-[0-9]{2}-(H-A|V-A|CWP-H-A|CWP-V-A|"
             "CHWP-H-A|CHWP-V-A)$'"
+        ),
+        "vibration-vrms-0-1k_filter": (
+            "sm.sensor_name ~ "
+            "'^(HT|LT)-CH-[0-9]{2}-(H-VRMS-0-1K|V-VRMS-0-1K|"
+            "CWP-H-VRMS-0-1K|CWP-V-VRMS-0-1K|"
+            "CHWP-H-VRMS-0-1K|CHWP-V-VRMS-0-1K)$'"
+        ),
+        "vibration-vrms-1-5k_filter": (
+            "sm.sensor_name ~ "
+            "'^(HT|LT)-CH-[0-9]{2}-(H-VRMS-1-5K|V-VRMS-1-5K|"
+            "CWP-H-VRMS-1-5K|CWP-V-VRMS-1-5K|"
+            "CHWP-H-VRMS-1-5K|CHWP-V-VRMS-1-5K)$'"
         ),
         "ht_system_use_case": "HTCH-SYSTEM-GBR-TS",
     },
@@ -43,17 +67,45 @@ SITE_CONFIG = {
 DASHBOARDS = (
     {
         "schema": "sgp7",
-        "kind": "vibration",
-        "uid": "sgp7-vibration",
-        "title": "SGP7 Chiller Vibration",
-        "filename": "sgp7-vibration.json",
+        "kind": "vibration-acc",
+        "uid": "sgp7-vibration-acc",
+        "title": "SGP7 Chiller Vibration Acc",
+        "filename": "sgp7-vibration-acc.json",
     },
     {
         "schema": "sgp8",
-        "kind": "vibration",
-        "uid": "sgp8-vibration",
-        "title": "SGP8 Chiller Vibration",
-        "filename": "sgp8-vibration.json",
+        "kind": "vibration-acc",
+        "uid": "sgp8-vibration-acc",
+        "title": "SGP8 Chiller Vibration Acc",
+        "filename": "sgp8-vibration-acc.json",
+    },
+    {
+        "schema": "sgp7",
+        "kind": "vibration-vrms-0-1k",
+        "uid": "sgp7-vibration-vrms-0-1k",
+        "title": "SGP7 Chiller Vibration Vrms 0-1k",
+        "filename": "sgp7-vibration-vrms-0-1k.json",
+    },
+    {
+        "schema": "sgp8",
+        "kind": "vibration-vrms-0-1k",
+        "uid": "sgp8-vibration-vrms-0-1k",
+        "title": "SGP8 Chiller Vibration Vrms 0-1k",
+        "filename": "sgp8-vibration-vrms-0-1k.json",
+    },
+    {
+        "schema": "sgp7",
+        "kind": "vibration-vrms-1-5k",
+        "uid": "sgp7-vibration-vrms-1-5k",
+        "title": "SGP7 Chiller Vibration Vrms 1-5k",
+        "filename": "sgp7-vibration-vrms-1-5k.json",
+    },
+    {
+        "schema": "sgp8",
+        "kind": "vibration-vrms-1-5k",
+        "uid": "sgp8-vibration-vrms-1-5k",
+        "title": "SGP8 Chiller Vibration Vrms 1-5k",
+        "filename": "sgp8-vibration-vrms-1-5k.json",
     },
     {
         "schema": "sgp7",
@@ -73,8 +125,8 @@ DASHBOARDS = (
 
 
 def sensor_filter(schema: str, kind: str) -> str:
-    if kind == "vibration":
-        return SITE_CONFIG[schema]["vibration_filter"]
+    if kind.startswith("vibration"):
+        return SITE_CONFIG[schema][f"{kind}_filter"]
     return (
         "sm.sensor_name ~ '^(CH|CWP|CHWP)-KW(_A|_B|-COMBINED|)$'"
     )
@@ -210,7 +262,8 @@ def generate(config: dict[str, str], template: dict) -> None:
     kind = config["kind"]
     sensors = resolve_sensors(schema, kind)
     if not sensors:
-        raise RuntimeError(f"{config['uid']} resolved no sensors")
+        print(f"  Warning: {config['uid']} resolved no sensors")
+        return
     
     print(f"  {config['uid']}: {len(sensors)} sensors")
 
@@ -218,14 +271,17 @@ def generate(config: dict[str, str], template: dict) -> None:
     dashboard["id"] = None
     dashboard["uid"] = config["uid"]
     dashboard["title"] = config["title"]
-    dashboard["description"] = (
-        f"{schema.upper()} vibration trends for chiller, CWP, and CHWP horizontal "
-        "and vertical acceleration sensors across seven HT and two LT chillers."
-        if kind == "vibration"
-        else f"{schema.upper()} power trends for chiller, CWP, and CHWP combined "
-        "kW across seven HT and two LT chillers. Uses prioritized anomaly "
-        "predictions with telemetry fallback."
-    )
+    
+    if kind == "vibration-acc":
+        desc = f"{schema.upper()} vibration trends: horizontal and vertical acceleration sensors for chiller, CWP, and CHWP across nine chillers."
+    elif kind == "vibration-vrms-0-1k":
+        desc = f"{schema.upper()} vibration trends: horizontal and vertical VRMS 0-1k sensors for chiller, CWP, and CHWP across nine chillers."
+    elif kind == "vibration-vrms-1-5k":
+        desc = f"{schema.upper()} vibration trends: horizontal and vertical VRMS 1-5k sensors for chiller, CWP, and CHWP across nine chillers."
+    else:
+        desc = f"{schema.upper()} power trends for chiller, CWP, and CHWP combined kW across seven HT and two LT chillers. Uses prioritized anomaly predictions with telemetry fallback."
+
+    dashboard["description"] = desc
     dashboard["tags"] = ["smart-dc", schema, kind, "chiller"]
     dashboard["time"] = {"from": "now-24h", "to": "now"}
     dashboard["timezone"] = "Asia/Singapore"
@@ -233,25 +289,30 @@ def generate(config: dict[str, str], template: dict) -> None:
 
     panel = dashboard["panels"][0]
     panel["datasource"] = DATASOURCE
-    panel["description"] = (
-        "Horizontal/vertical acceleration from 1-minute telemetry."
-        if kind == "vibration"
-        else "Actual/predicted combined kW when a preferred model is available; "
-        "otherwise 1-minute telemetry."
-    )
+    
+    if kind == "vibration-acc":
+        panel_desc = "Horizontal/vertical acceleration from 1-minute telemetry."
+    elif kind.startswith("vibration-vrms"):
+        panel_desc = f"Horizontal/vertical {kind.split('-')[-2]} {kind.split('-')[-1]} from 1-minute telemetry."
+    else:
+        panel_desc = "Actual/predicted combined kW when a preferred model is available; otherwise 1-minute telemetry."
+
+    panel["description"] = panel_desc
     panel["targets"][0]["datasource"] = DATASOURCE
     panel["targets"][0]["rawSql"] = (
-        vibration_series(schema) if kind == "vibration" else power_series(schema)
+        vibration_series(schema) if kind.startswith("vibration") else power_series(schema)
     )
 
     variable = dashboard["templating"]["list"][0]
     query = sensor_query(schema, kind)
     variable["label"] = "Asset | Sensor"
-    variable["description"] = (
-        "Search and multi-select vibration sensors across nine chillers."
-        if kind == "vibration"
-        else "Search and multi-select combined kW sensors across nine chillers."
-    )
+    
+    if kind.startswith("vibration"):
+        var_desc = "Search and multi-select vibration sensors across nine chillers."
+    else:
+        var_desc = "Search and multi-select combined kW sensors across nine chillers."
+
+    variable["description"] = var_desc
     variable["datasource"] = DATASOURCE
     variable["query"] = query
     variable["definition"] = query

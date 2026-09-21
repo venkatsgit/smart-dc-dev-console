@@ -43,7 +43,7 @@
       "gridPos": { "h": 4, "w": 24, "x": 0, "y": 4 },
       "options": {
         "mode": "markdown",
-        "content": "## Shared\n\n- [Asset / Sensor Trends](/d/asset-sensor-trends/asset-sensor-trends) — Searchable multi-select asset and sensor trends with anomaly prediction overlay\n- [Rule Version Status](/d/rule-version-status/rule-version-status) — Compare GBR rule versions across Dev and Prod environments"
+        "content": "## Shared\n\n- [Asset / Sensor Trends (Dev)](/d/asset-sensor-trends-dev/asset-sensor-trends-dev) — Dev DB; Schema + Source (telemetry or anomaly_predictions) + multi-select sensors\n- [Asset / Sensor Trends (Prod)](/d/asset-sensor-trends-prod/asset-sensor-trends-prod) — Prod DB; Schema + Source (telemetry or anomaly_predictions) + multi-select sensors\n- [Rule Version Status](/d/rule-version-status/rule-version-status) — Compare GBR rule versions across Dev and Prod environments"
       },
       "transparent": false
     },
@@ -51,10 +51,10 @@
       "id": 3,
       "type": "text",
       "title": "SGP7",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": { "h": 12, "w": 12, "x": 0, "y": 8 },
       "options": {
         "mode": "markdown",
-        "content": "## SGP7\n\n- [Chiller Power](/d/sgp7-power/sgp7-chiller-power)\n- [Chiller Vibration](/d/sgp7-vibration/sgp7-chiller-vibration)\n- [Cooling System (GBR)](/d/sgp7-cooling-system-gbr/sgp7-cooling-system-cooling-system-gbr)\n- [LT-CH System (GBR)](/d/sgp7-ltch-system-gbr/sgp7-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp7-ltch-system-gbr-ts/sgp7-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp7-level-trends/sgp7-level-trends) — Unified floor trends for all DH usecases"
+        "content": "## SGP7\n\n- [Chiller Power](/d/sgp7-power/sgp7-chiller-power)\n- [Chiller Vibration (Acc)](/d/sgp7-vibration-acc/sgp7-chiller-vibration-acc)\n- [Chiller Vibration (Vrms 0-1k)](/d/sgp7-vibration-vrms-0-1k/sgp7-chiller-vibration-vrms-0-1k)\n- [Chiller Vibration (Vrms 1-5k)](/d/sgp7-vibration-vrms-1-5k/sgp7-chiller-vibration-vrms-1-5k)\n- [Cooling System (GBR)](/d/sgp7-cooling-system-gbr/sgp7-cooling-system-cooling-system-gbr)\n- [LT-CH System (GBR)](/d/sgp7-ltch-system-gbr/sgp7-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp7-ltch-system-gbr-ts/sgp7-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp7-level-trends/sgp7-level-trends) — Unified floor trends for all DH usecases"
       },
       "transparent": false
     },
@@ -62,10 +62,10 @@
       "id": 4,
       "type": "text",
       "title": "SGP8",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": { "h": 12, "w": 12, "x": 12, "y": 8 },
       "options": {
         "mode": "markdown",
-        "content": "## SGP8\n\n- [Chiller Power](/d/sgp8-power/sgp8-chiller-power)\n- [Chiller Vibration](/d/sgp8-vibration/sgp8-chiller-vibration)\n- [HT-CH System (GBR)](/d/sgp8-htch-system-gbr/sgp8-ht-ch-system-htch-system-gbr)\n- [LT-CH System (GBR)](/d/sgp8-ltch-system-gbr/sgp8-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp8-ltch-system-gbr-ts/sgp8-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp8-level-trends/sgp8-level-trends) — Unified floor trends for all DH usecases"
+        "content": "## SGP8\n\n- [Chiller Power](/d/sgp8-power/sgp8-chiller-power)\n- [Chiller Vibration (Acc)](/d/sgp8-vibration-acc/sgp8-chiller-vibration-acc)\n- [Chiller Vibration (Vrms 0-1k)](/d/sgp8-vibration-vrms-0-1k/sgp8-chiller-vibration-vrms-0-1k)\n- [Chiller Vibration (Vrms 1-5k)](/d/sgp8-vibration-vrms-1-5k/sgp8-chiller-vibration-vrms-1-5k)\n- [VSD Trends (Dev)](/d/sgp8-vsd/sgp8-vsd-trends-dev) — All VSD sensors on sgp8_dev (CT detail + feedback)\n- [HT-CH System (GBR)](/d/sgp8-htch-system-gbr/sgp8-ht-ch-system-htch-system-gbr)\n- [LT-CH System (GBR)](/d/sgp8-ltch-system-gbr/sgp8-lt-ch-system-ltch-system-gbr)\n- [LT-CH System (TS)](/d/sgp8-ltch-system-gbr-ts/sgp8-lt-ch-system-ltch-system-gbr-ts)\n- [Level Trends](/d/sgp8-level-trends/sgp8-level-trends) — Unified floor trends for all DH usecases"
       },
       "transparent": false
     }
