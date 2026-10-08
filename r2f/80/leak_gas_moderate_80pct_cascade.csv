@@ -1,0 +1,112 @@
+kind,tag,tag_b,in_sensors,departs_at_min,departs_at,direction,peak_delta,delta_sigma,final_delta,sigma,unit,predicted_order,observed_order,agrees,lag_min,correlation,carried_by
+departure,CH-CHWR-FLOW,,yes,,,,0.0,0.0,0.0,0.36661,l/s,,,,,,
+departure,CH-CHWR-PRESS,,yes,,,,0.0,0.0,0.0,0.10136,,,,,,,
+departure,CH-CHWRT,,yes,,,,-0.001,0.1,0.0,0.01037,degC,,,,,,
+departure,CH-CHWS-PRESS,,yes,,,,0.0,0.0,0.0,0.07205,,,,,,,
+departure,CH-CHWST,,yes,668,2026-08-22T11:08:00.000000+0000,rise,4.593,138.82,4.593,0.03309,degC,,23,,,,"T_chw,out = (1 - eps) T_chw,in + eps T_e"
+departure,CH-CON-APP-TEMP,,yes,,,,0.108,0.8,0.108,0.1344,,,,,,,"1/UA_eff = 1/UA + R_f  ->  approach = (1 - eps) (T_c - T_cw,in); the site logs water minus refrigerant, so it falls"
+departure,CH-CON-E-TEMP,,yes,,,,0.003,0.03,0.0,0.0897,degC,,,,,,"entering water: a boundary, moves only with the site day"
+departure,CH-CON-L-TEMP,,yes,732,2026-08-22T12:12:00.000000+0000,fall,-3.407,35.99,-3.407,0.09466,degC,,32,,,,"as CH-CWRT, barrel RTD"
+departure,CH-CON-RFT-TEMP,,yes,731,2026-08-22T12:11:00.000000+0000,fall,-3.515,36.9,-3.515,0.09525,degC,,31,,,,"Q_c = eps C_w (T_c - T_cw,in): less conductance, higher T_c for the same heat"
+departure,CH-CWR-PRESS,,yes,,,,0.001,0.0,0.0,0.68421,,,,,,,
+departure,CH-CWRT,,yes,750,2026-08-22T12:30:00.000000+0000,fall,-3.407,26.19,-3.407,0.13009,degC,,34,,,,"T_cw,out = (1 - eps) T_cw,in + eps T_c"
+departure,CH-CWS-FLOW,,yes,,,,0.001,0.0,0.0,3.45472,l/s,,,,,,
+departure,CH-CWS-PRESS,,yes,,,,0.0,0.0,0.0,0.51808,,,,,,,
+departure,CH-CWST,,yes,,,,0.004,0.1,0.0,0.0413,degC,,,,,,
+departure,CH-EVA-APP-TEMP,,yes,241,2026-08-22T04:01:00.000000+0000,rise,7.275,240.59,6.611,0.03024,,,15,,,,1/UA_eff = 1/UA + R_f on the evaporator bundle
+departure,CH-EVA-E-TEMP,,yes,,,,0.001,0.08,0.0,0.01223,degC,,,,,,entering water: a boundary
+departure,CH-EVA-L-TEMP,,yes,665,2026-08-22T11:05:00.000000+0000,rise,4.593,202.93,4.593,0.02263,degC,,22,,,,"as CH-CHWST, barrel RTD"
+departure,CH-EVA-RFT-PRES,,yes,231,2026-08-22T03:51:00.000000+0000,fall,-16.874,234.16,-6.677,0.07206,kPa,,14,,,,P_e = P_sat(T_e)
+departure,CH-EVA-RFT-TEMP,,yes,229,2026-08-22T03:49:00.000000+0000,fall,-5.363,274.15,-2.018,0.01956,degC,,13,,,,"Q_e = eps C_w (T_chw,in - T_e): less conductance, lower T_e"
+departure,CH-HB,,yes,1004,2026-08-22T16:44:00.000000+0000,rise,15.344,4.68,11.091,3.27924,,,49,,,,(IN - OUT) / OUT
+departure,CH-HEAT-IN,,yes,417,2026-08-22T06:57:00.000000+0000,fall,-1960.986,100.76,-1960.986,19.46113,,,19,,,,Q_e + P_elec
+departure,CH-HEAT-OUT,,yes,767,2026-08-22T12:47:00.000000+0000,fall,-2152.555,17.48,-2063.87,123.11815,,,36,,,,Q_c
+departure,CH-IGV1-POS,,yes,,,,0.0,,0.0,0.0,%,,,,,,capacity controller: vanes answer demand below the hand-over
+departure,CH-KW_A,,yes,69,2026-08-22T01:09:00.000000+0000,rise,43.766,35.81,-0.301,1.22231,kW,,2,,,,"P_shaft = m dh_poly / (eta_p eta_mech): more lift, more work per kilogram"
+departure,CH-KW/RTON,,yes,94,2026-08-22T01:34:00.000000+0000,rise,0.432,174.88,0.432,0.00247,,,7,,,,kW per RT = P_elec / (Q_e / 3.517)
+departure,CH-L1-A,,yes,73,2026-08-22T01:13:00.000000+0000,rise,74.994,31.47,-0.516,2.38282,,,4,,,,I = P_elec / (sqrt3 V pf)
+departure,CH-L2-A,,yes,73,2026-08-22T01:13:00.000000+0000,rise,76.203,30.93,-0.525,2.46375,,,4,,,,I = P_elec / (sqrt3 V pf)
+departure,CH-L3-A,,yes,73,2026-08-22T01:13:00.000000+0000,rise,76.979,31.24,-0.53,2.46404,,,4,,,,I = P_elec / (sqrt3 V pf)
+departure,CH-OIL-DIS-PRES,,yes,374,2026-08-22T06:14:00.000000+0000,fall,-16.874,14.12,-6.677,1.19513,kPa,,18,,,,sump pressure + oil pump head
+departure,CH-OIL-DIS-TEMP,,yes,,,,0.004,0.07,0.0,0.06054,,,,,,,follows condenser water supply (site relation)
+departure,CH-OIL-TK-PRES,,yes,248,2026-08-22T04:08:00.000000+0000,fall,-16.875,129.06,-6.677,0.13076,kPa,,16,,,,oil sump at evaporator pressure
+departure,CH-RLA,,yes,71,2026-08-22T01:11:00.000000+0000,rise,9.15,33.18,-0.063,0.27577,,,3,,,,I = P_elec / (sqrt3 V pf)
+departure,CHWP-KW_A,,yes,,,,0.0,0.0,0.0,0.20533,,,,,,,
+departure,CHWP-VSD-FB,,yes,,,,0.0,0.0,0.0,0.15508,,,,,,,
+departure,CHWP-KW/RTON,,yes,730,2026-08-22T12:10:00.000000+0000,rise,0.031,43.51,0.031,0.00071,,,30,,,,
+departure,CWP-KW_A,,yes,,,,-0.001,0.0,0.0,1.59497,,,,,,,
+departure,CWP-VSD-FB,,yes,,,,0.001,0.0,0.0,1.17793,,,,,,,
+departure,TOT-CH-CDW-KW,,yes,814,2026-08-22T13:34:00.000000+0000,fall,-2152.555,7.85,-2063.87,274.08738,,,40,,,,
+departure,TOT-CH-CDW-RTON,,yes,814,2026-08-22T13:34:00.000000+0000,fall,-612.043,7.85,-586.827,77.93216,,,40,,,,
+departure,TOT-CH-CHW-KW,,yes,687,2026-08-22T11:27:00.000000+0000,fall,-1960.685,33.48,-1960.685,58.56657,,,28,,,,
+departure,TOT-CH-CHW-RTON,,yes,687,2026-08-22T11:27:00.000000+0000,fall,-557.488,33.48,-557.488,16.65243,,,28,,,,
+departure,TOT-CH-HB,,yes,,,,1.149,0.79,0.333,1.4508,,,,,,,
+departure,TOT-CH-HEAT-IN,,yes,744,2026-08-22T12:24:00.000000+0000,fall,-1960.986,33.39,-1960.986,58.72171,,,33,,,,
+departure,TOT-CH-HEAT-OUT,,yes,814,2026-08-22T13:34:00.000000+0000,fall,-2152.555,7.85,-2063.87,274.31757,,,40,,,,
+departure,TOT-CH-KW/RTON,,yes,176,2026-08-22T02:56:00.000000+0000,rise,0.045,28.5,0.044,0.00158,,,11,,,,
+departure,TOT-CHWP-KW/RTON,,yes,820,2026-08-22T13:40:00.000000+0000,rise,0.003,4.24,0.003,0.00071,,,43,,,,
+departure,TOT-CT-KW/RTON,,yes,884,2026-08-22T14:44:00.000000+0000,rise,0.004,5.45,0.003,0.00073,,,44,,,,
+departure,TOT-CWP-KW/RTON,,yes,905,2026-08-22T15:05:00.000000+0000,rise,0.004,3.45,0.004,0.00116,,,45,,,,
+departure,TOT-DPM-CDWP-KW,,yes,,,,0.001,0.0,0.0,4.93105,,,,,,,
+departure,TOT-DPM-CH-KW,,yes,118,2026-08-22T01:58:00.000000+0000,rise,43.766,11.71,-0.301,3.73812,,,8,,,,
+departure,TOT-DPM-CHWP-KW,,yes,,,,0.0,0.0,0.0,0.40059,,,,,,,
+departure,TOT-DPM-SYS-KW,,yes,174,2026-08-22T02:54:00.000000+0000,rise,43.766,6.47,-0.301,6.76058,,,10,,,,
+departure,TOT-HDR-CDW-KW,,yes,935,2026-08-22T15:35:00.000000+0000,fall,-2152.555,2.86,-2063.87,753.08456,,,46,,,,
+departure,TOT-HDR-CDW-RTON,,yes,935,2026-08-22T15:35:00.000000+0000,fall,-612.043,2.86,-586.827,214.12698,,,46,,,,
+departure,TOT-HDR-CHW-KW,,yes,680,2026-08-22T11:20:00.000000+0000,fall,-1960.685,42.28,-1960.685,46.3693,,,26,,,,
+departure,TOT-HDR-CHW-RTON,,yes,680,2026-08-22T11:20:00.000000+0000,fall,-557.488,42.28,-557.488,13.18433,,,26,,,,
+departure,TOT-HDR-HB,,yes,,,,1.053,0.28,-0.71,3.73985,,,,,,,
+departure,TOT-HDR-HEAT-IN,,yes,634,2026-08-22T10:34:00.000000+0000,fall,-1960.986,42.56,-1960.986,46.0784,,,21,,,,
+departure,TOT-HDR-HEAT-OUT,,yes,936,2026-08-22T15:36:00.000000+0000,fall,-2152.555,2.85,-2063.87,756.29727,,,48,,,,
+departure,TOT-SYS-KW/RTON,,yes,269,2026-08-22T04:29:00.000000+0000,rise,0.062,27.15,0.062,0.00228,,,17,,,,
+departure,CH-CHW-RTON,,yes,670,2026-08-22T11:10:00.000000+0000,fall,-557.488,100.68,-557.488,5.53699,,,24,,,,Q_e / 3.517
+departure,CH-V-A,,yes,,,,0.0,0.0,0.0,0.00596,acceleration,,,,,,
+departure,CH-H-A,,yes,,,,0.0,0.0,0.0,0.00569,acceleration,,,,,,
+departure,CH-CON-RFT-PRES,,yes,751,2026-08-22T12:31:00.000000+0000,fall,-19.845,24.27,-19.845,0.81756,kPa,2,35,yes,,,P_c = P_sat(T_c): pressure follows temperature along the saturation line
+departure,CDWP-KW/RTON,,yes,779,2026-08-22T12:59:00.000000+0000,rise,0.039,22.06,0.039,0.00177,,,39,,,,
+departure,CH-AB-V,,yes,,,,0.0,0.0,0.0,0.60436,,,,,,,
+departure,CH-BC-V,,yes,,,,0.0,0.0,0.0,0.61091,,,,,,,
+departure,CH-CA-V,,yes,,,,0.0,0.0,0.0,0.58758,,,,,,,
+departure,CH-CDW-KW,,yes,767,2026-08-22T12:47:00.000000+0000,fall,-2152.555,17.48,-2063.87,123.11815,,,36,,,,Q_c = Q_e + W
+departure,CH-CDW-RTON,,yes,767,2026-08-22T12:47:00.000000+0000,fall,-612.043,17.48,-586.827,35.00659,,,36,,,,Q_c / 3.517
+departure,CH-CHW-KW,,yes,670,2026-08-22T11:10:00.000000+0000,fall,-1960.685,100.68,-1960.685,19.47359,,,24,,,,Q_e = 4.19 q (T_in - T_out): capacity the machine can still deliver
+departure,charge_kg,,no,137,2026-08-22T02:17:00.000000+0000,fall,-1002.01682,,-1002.01682,,truth,1,9,yes,,,dM/dt = -m_leak
+departure,subcooling_K,,no,59,2026-08-22T00:59:00.000000+0000,fall,-3.79977,,-3.79977,,truth,3,1,yes,,,subcooler uncovers as the liquid level falls
+departure,exv_position,,no,203,2026-08-22T03:23:00.000000+0000,rise,0.24935,,0.23232,,truth,4,12,yes,,,level control opens to defend the barrel
+departure,superheat_K,,no,462,2026-08-22T07:42:00.000000+0000,rise,23.88795,,23.88795,,truth,5,20,yes,,,exposed tubes superheat the vapour as the level falls
+correlation,CH-EVA-RFT-PRES,CH-CON-RFT-PRES,,,,,,,,,,,,,0,-0.71,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-EVA-RFT-TEMP,,,,,,,,,,,,,0,1.0,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-CON-RFT-TEMP,,,,,,,,,,,,,0,-0.723,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-CHWST,,,,,,,,,,,,,0,0.709,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-CWRT,,,,,,,,,,,,,0,-0.723,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-EVA-APP-TEMP,,,,,,,,,,,,,0,-0.726,simultaneous at this resolution
+correlation,CH-EVA-RFT-PRES,CH-KW_A,,,,,,,,,,,,,-104,-0.451,CH-KW_A leads CH-EVA-RFT-PRES by 104 min
+correlation,CH-EVA-RFT-PRES,CH-KW/RTON,,,,,,,,,,,,,0,0.871,simultaneous at this resolution
+correlation,CH-CON-RFT-PRES,CH-EVA-RFT-TEMP,,,,,,,,,,,,,0,-0.707,simultaneous at this resolution
+correlation,CH-CON-RFT-PRES,CH-CON-RFT-TEMP,,,,,,,,,,,,,0,1.0,simultaneous at this resolution
+correlation,CH-CON-RFT-PRES,CH-CHWST,,,,,,,,,,,,,0,-0.999,simultaneous at this resolution
+correlation,CH-CON-RFT-PRES,CH-CWRT,,,,,,,,,,,,,0,1.0,simultaneous at this resolution
+correlation,CH-CON-RFT-PRES,CH-EVA-APP-TEMP,,,,,,,,,,,,,-81,-0.795,CH-EVA-APP-TEMP leads CH-CON-RFT-PRES by 81 min
+correlation,CH-CON-RFT-PRES,CH-KW_A,,,,,,,,,,,,,-80,0.707,CH-KW_A leads CH-CON-RFT-PRES by 80 min
+correlation,CH-CON-RFT-PRES,CH-KW/RTON,,,,,,,,,,,,,0,-0.908,simultaneous at this resolution
+correlation,CH-EVA-RFT-TEMP,CH-CON-RFT-TEMP,,,,,,,,,,,,,0,-0.72,simultaneous at this resolution
+correlation,CH-EVA-RFT-TEMP,CH-CHWST,,,,,,,,,,,,,0,0.705,simultaneous at this resolution
+correlation,CH-EVA-RFT-TEMP,CH-CWRT,,,,,,,,,,,,,0,-0.72,simultaneous at this resolution
+correlation,CH-EVA-RFT-TEMP,CH-EVA-APP-TEMP,,,,,,,,,,,,,0,-0.731,simultaneous at this resolution
+correlation,CH-EVA-RFT-TEMP,CH-KW_A,,,,,,,,,,,,,-104,-0.44,CH-KW_A leads CH-EVA-RFT-TEMP by 104 min
+correlation,CH-EVA-RFT-TEMP,CH-KW/RTON,,,,,,,,,,,,,0,0.866,simultaneous at this resolution
+correlation,CH-CON-RFT-TEMP,CH-CHWST,,,,,,,,,,,,,0,-1.0,simultaneous at this resolution
+correlation,CH-CON-RFT-TEMP,CH-CWRT,,,,,,,,,,,,,0,1.0,simultaneous at this resolution
+correlation,CH-CON-RFT-TEMP,CH-EVA-APP-TEMP,,,,,,,,,,,,,-82,-0.793,CH-EVA-APP-TEMP leads CH-CON-RFT-TEMP by 82 min
+correlation,CH-CON-RFT-TEMP,CH-KW_A,,,,,,,,,,,,,-80,0.706,CH-KW_A leads CH-CON-RFT-TEMP by 80 min
+correlation,CH-CON-RFT-TEMP,CH-KW/RTON,,,,,,,,,,,,,0,-0.918,simultaneous at this resolution
+correlation,CH-CHWST,CH-CWRT,,,,,,,,,,,,,0,-1.0,simultaneous at this resolution
+correlation,CH-CHWST,CH-EVA-APP-TEMP,,,,,,,,,,,,,-82,0.801,CH-EVA-APP-TEMP leads CH-CHWST by 82 min
+correlation,CH-CHWST,CH-KW_A,,,,,,,,,,,,,-80,-0.71,CH-KW_A leads CH-CHWST by 80 min
+correlation,CH-CHWST,CH-KW/RTON,,,,,,,,,,,,,0,0.915,simultaneous at this resolution
+correlation,CH-CWRT,CH-EVA-APP-TEMP,,,,,,,,,,,,,-82,-0.793,CH-EVA-APP-TEMP leads CH-CWRT by 82 min
+correlation,CH-CWRT,CH-KW_A,,,,,,,,,,,,,-80,0.706,CH-KW_A leads CH-CWRT by 80 min
+correlation,CH-CWRT,CH-KW/RTON,,,,,,,,,,,,,0,-0.918,simultaneous at this resolution
+correlation,CH-EVA-APP-TEMP,CH-KW_A,,,,,,,,,,,,,-13,-0.607,CH-KW_A leads CH-EVA-APP-TEMP by 13 min
+correlation,CH-EVA-APP-TEMP,CH-KW/RTON,,,,,,,,,,,,,85,0.673,CH-EVA-APP-TEMP leads CH-KW/RTON by 85 min
+correlation,CH-KW_A,CH-KW/RTON,,,,,,,,,,,,,83,-0.611,CH-KW_A leads CH-KW/RTON by 83 min

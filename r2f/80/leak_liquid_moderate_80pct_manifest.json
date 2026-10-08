@@ -1,0 +1,1935 @@
+{
+  "$schema": "chillertwin/dataset/v1",
+  "model": {
+    "id": "keppel_ht_ch01_validation",
+    "name": "HT-CH-01 validation harness",
+    "version": "1.0.0",
+    "graph_hash": "GF-8783EE06",
+    "refrigerant": "R1233zd(E)",
+    "chillers": [
+      "HT-CH-01"
+    ],
+    "topology": {
+      "nodes": 4,
+      "edges": 2,
+      "chillers": 1,
+      "variable_nodes": 0,
+      "loops": [
+        "chw_primary",
+        "cw"
+      ],
+      "health_variables": 24
+    }
+  },
+  "scenario": {
+    "case": "keppel_ht_ch01_validation.json",
+    "chiller": "HT-CH-01",
+    "load": "80pct",
+    "boundary_profile": {
+      "id": "site_day_80",
+      "name": "Site day \u2014 21 Aug 2026",
+      "day": "2026-08-21",
+      "detail": "21 August 2026, the most typical day of the fortnight: nearest the fortnight's medians in entering-water means and swings, load and flows (score 1.45; mean load 81 %): condenser water 28.47 to 31.00 \u00b0C, mean 29.12. Entering chilled and condenser water are taken straight from the export, one point every 10 minutes. Nothing is smoothed."
+    },
+    "id": "leak_liquid_moderate_80pct",
+    "name": "Refrigerant leak (high side)",
+    "fault": "chiller.refrigerant_leak_high_side",
+    "severity_profile": {
+      "kind": "ramp",
+      "onset_s": 0.0,
+      "duration_s": 4320.0,
+      "final_severity": 0.0929235525074159,
+      "initial_severity": 0.0,
+      "doubling_s": 1512.0,
+      "steepness": 8.0,
+      "period_s": 600.0,
+      "duty": 0.3,
+      "points": []
+    },
+    "onset_s": 86400.0,
+    "target_scale": 1.0,
+    "severity_anchor": {
+      "standard": "ASHRAE RP-1043 undercharge levels, 10/20/30/40 % charge loss, as milestones",
+      "rate_class": {
+        "id": "moderate",
+        "label": "Moderate",
+        "hours_to_SL4": 8.0,
+        "percent_per_hour": 5.0,
+        "percent_per_year_equivalent": 43800.0,
+        "times_epa_trigger": 4380.0,
+        "regime": "breach",
+        "shape": "ramp",
+        "description": "A breach large enough to be losing charge visibly over a shift, at about 5 % an hour. Typical of a gasket that has started to fail or a seal that has lost its face."
+      },
+      "valve": {
+        "asset": "HT-CH-01",
+        "location": {
+          "id": "high_side_liquid",
+          "label": "High side \u2014 liquid",
+          "part": "condenser",
+          "health": "leak_area",
+          "phase": "liquid",
+          "fault_id": "chiller.refrigerant_leak_high_side",
+          "description": "Subcooled liquid escapes at condensing pressure -- about 8.8 bar, so nearly 8 bar of driving difference. Liquid is some thirty times denser than the discharge gas at the same pressure, so this is by far the fastest way to lose charge, and subcooling collapses before anything else moves.",
+          "first_indicator": "subcooling_K",
+          "side": "high",
+          "service_points": [
+            "condenser bottom gasket or drain valve",
+            "liquid line and its flanges",
+            "charging and isolation valves",
+            "expansion valve inlet"
+          ]
+        },
+        "rate_class": {
+          "id": "moderate",
+          "label": "Moderate",
+          "hours_to_SL4": 8.0,
+          "percent_per_hour": 5.0,
+          "percent_per_year_equivalent": 43800.0,
+          "times_epa_trigger": 4380.0,
+          "regime": "breach",
+          "shape": "ramp",
+          "description": "A breach large enough to be losing charge visibly over a shift, at about 5 % an hour. Typical of a gasket that has started to fail or a seal that has lost its face."
+        },
+        "area_m2": 1.858471050148318e-06,
+        "area_mm2": 1.8584710501483181,
+        "equivalent_diameter_mm": 1.5382713784616564,
+        "severity": 0.0929235525074159,
+        "nominal_rate_kg_s": 0.01597222222222222,
+        "nominal_rate_kg_h": 57.49999999999999,
+        "percent_per_hour": 5.0,
+        "epa_annualised_percent": 43800.0,
+        "limit_m2": 2e-05,
+        "saturated": false
+      },
+      "note": "orifice sized to the rate class at the design point; it opens over the first 15 % of the time-to-40 %-loss and then holds, and the charge drains on the physics until protection trips"
+    },
+    "run": {
+      "duration_s": 75600.0,
+      "baseline_s": 86400.0,
+      "settle_s": 3600.0,
+      "sample_interval_s": 60.0,
+      "stop_on": "trip",
+      "seed": 20261001
+    }
+  },
+  "faults": {
+    "instances": [
+      {
+        "instance_id": "F01",
+        "definition_id": "chiller.refrigerant_leak_high_side",
+        "asset": "HT-CH-01",
+        "profile": {
+          "kind": "ramp",
+          "onset_s": 0.0,
+          "duration_s": 4320.0,
+          "final_severity": 0.0929235525074159,
+          "initial_severity": 0.0,
+          "doubling_s": 1512.0,
+          "steepness": 8.0,
+          "period_s": 600.0,
+          "duty": 0.3,
+          "points": []
+        },
+        "severity_scale": 1.0,
+        "target_scale": 1.0,
+        "enabled": true,
+        "notes": ""
+      }
+    ]
+  },
+  "fault_definitions": [
+    {
+      "instance": "F01",
+      "id": "chiller.refrigerant_leak_high_side",
+      "name": "Refrigerant leak (high side)",
+      "category": "Centrifugal chiller",
+      "applies_to": [
+        "chiller"
+      ],
+      "targets": [
+        {
+          "variable": "leak_area",
+          "part": "condenser",
+          "weight": 1.0,
+          "scale": 1.0
+        }
+      ],
+      "mechanism": "A leak on the high-pressure side loses liquid refrigerant against a much larger pressure difference than a low-side leak, so the same orifice empties the machine considerably faster. Condenser liquid level and subcooling collapse first; the evaporator then starves as the expansion valve runs out of liquid to meter.",
+      "signature": [
+        {
+          "signal": "cond_level_fraction",
+          "direction": "fall",
+          "order": 1,
+          "note": "liquid holdup drains"
+        },
+        {
+          "signal": "subcooling_K",
+          "direction": "fall",
+          "order": 1,
+          "note": "subcooler uncovers"
+        },
+        {
+          "signal": "charge_kg",
+          "direction": "fall",
+          "order": 1,
+          "note": "mass balance"
+        },
+        {
+          "signal": "superheat_K",
+          "direction": "rise",
+          "order": 3,
+          "note": "evaporator starves"
+        },
+        {
+          "signal": "Q_evap_W",
+          "direction": "fall",
+          "order": 4,
+          "note": "capacity declines"
+        }
+      ],
+      "default_profile": {
+        "kind": "exponential",
+        "onset_s": 0.0,
+        "duration_s": 21600.0,
+        "final_severity": 0.8,
+        "initial_severity": 0.0,
+        "doubling_s": 3600.0,
+        "steepness": 8.0,
+        "period_s": 600.0,
+        "duty": 0.3,
+        "points": []
+      },
+      "typical_ttf_h": [
+        2.0,
+        24.0
+      ],
+      "terminal": "low_evaporator_pressure",
+      "severity_label": "A major high-side breach: 20 mm^2 equivalent orifice",
+      "version": "1.0.0"
+    }
+  ],
+  "sensor_schema": [
+    {
+      "tag": "HT-CH-01-CHWRT",
+      "source": "HT-CH-01.T_chw_entering_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 0.0,
+      "range_max": 30.0,
+      "noise_sigma": 0.04,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Entering chilled-water temperature"
+    },
+    {
+      "tag": "HT-CH-01-CHWST",
+      "source": "HT-CH-01.T_chw_leaving_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 0.0,
+      "range_max": 30.0,
+      "noise_sigma": 0.04,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Leaving chilled-water temperature"
+    },
+    {
+      "tag": "HT-CH-01-CWRT",
+      "source": "HT-CH-01.T_cw_entering_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 10.0,
+      "range_max": 60.0,
+      "noise_sigma": 0.05,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Entering condenser-water temperature"
+    },
+    {
+      "tag": "HT-CH-01-CWST",
+      "source": "HT-CH-01.T_cw_leaving_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 10.0,
+      "range_max": 60.0,
+      "noise_sigma": 0.05,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Leaving condenser-water temperature"
+    },
+    {
+      "tag": "HT-CH-01-CHWFLOW",
+      "source": "HT-CH-01.mdot_chw_kg_s",
+      "unit": "l/s",
+      "kind": "flow",
+      "range_min": 0.0,
+      "range_max": 400.0,
+      "noise_sigma": 0.9,
+      "resolution": 0.1,
+      "lag_s": 4.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Chilled-water flow"
+    },
+    {
+      "tag": "HT-CH-01-CWFLOW",
+      "source": "HT-CH-01.mdot_cw_kg_s",
+      "unit": "l/s",
+      "kind": "flow",
+      "range_min": 0.0,
+      "range_max": 400.0,
+      "noise_sigma": 0.9,
+      "resolution": 0.1,
+      "lag_s": 4.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Condenser-water flow"
+    },
+    {
+      "tag": "HT-CH-01-EVAPP",
+      "source": "HT-CH-01.P_evap_Pa",
+      "unit": "kPa",
+      "kind": "pressure",
+      "range_min": 0.0,
+      "range_max": 1600.0,
+      "noise_sigma": 1.2,
+      "resolution": 0.5,
+      "lag_s": 0.3,
+      "sample_interval_s": 1.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 0.5,
+      "description": "Evaporator refrigerant pressure"
+    },
+    {
+      "tag": "HT-CH-01-CONDP",
+      "source": "HT-CH-01.P_cond_Pa",
+      "unit": "kPa",
+      "kind": "pressure",
+      "range_min": 0.0,
+      "range_max": 1600.0,
+      "noise_sigma": 1.2,
+      "resolution": 0.5,
+      "lag_s": 0.3,
+      "sample_interval_s": 1.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 0.5,
+      "description": "Condenser refrigerant pressure"
+    },
+    {
+      "tag": "HT-CH-01-EVAPT",
+      "source": "HT-CH-01.T_evap_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": -20.0,
+      "range_max": 110.0,
+      "noise_sigma": 0.08,
+      "resolution": 0.05,
+      "lag_s": 6.0,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.3,
+      "description": "Evaporating temperature"
+    },
+    {
+      "tag": "HT-CH-01-CONDT",
+      "source": "HT-CH-01.T_cond_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": -20.0,
+      "range_max": 110.0,
+      "noise_sigma": 0.08,
+      "resolution": 0.05,
+      "lag_s": 6.0,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.3,
+      "description": "Condensing temperature"
+    },
+    {
+      "tag": "HT-CH-01-DISCT",
+      "source": "HT-CH-01.T_discharge_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": -20.0,
+      "range_max": 110.0,
+      "noise_sigma": 0.08,
+      "resolution": 0.05,
+      "lag_s": 6.0,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.3,
+      "description": "Compressor discharge temperature"
+    },
+    {
+      "tag": "HT-CH-01-KW",
+      "source": "HT-CH-01.power_elec_W",
+      "unit": "kW",
+      "kind": "power",
+      "range_min": 0.0,
+      "range_max": 1200.0,
+      "noise_sigma": 2.5,
+      "resolution": 0.5,
+      "lag_s": 2.0,
+      "sample_interval_s": 5.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Chiller electrical input power"
+    },
+    {
+      "tag": "HT-CH-01-AMPS",
+      "source": "HT-CH-01.current_A",
+      "unit": "A",
+      "kind": "current",
+      "range_min": 0.0,
+      "range_max": 140.0,
+      "noise_sigma": 0.25,
+      "resolution": 0.1,
+      "lag_s": 0.4,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 0.5,
+      "description": "Compressor motor current"
+    },
+    {
+      "tag": "HT-CH-01-RPM",
+      "source": "HT-CH-01.speed_rpm",
+      "unit": "rpm",
+      "kind": "speed",
+      "range_min": 0.0,
+      "range_max": 4000.0,
+      "noise_sigma": 3.0,
+      "resolution": 1.0,
+      "lag_s": 0.5,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 0.5,
+      "description": "Compressor speed"
+    },
+    {
+      "tag": "HT-CH-01-IGV",
+      "source": "HT-CH-01.igv_position",
+      "unit": "%",
+      "kind": "position",
+      "range_min": 0.0,
+      "range_max": 100.0,
+      "noise_sigma": 0.3,
+      "resolution": 0.1,
+      "lag_s": 1.0,
+      "sample_interval_s": 5.0,
+      "scale": 100.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Inlet guide vane position"
+    },
+    {
+      "tag": "HT-CH-01-VIB",
+      "source": "HT-CH-01.vibration_mm_s",
+      "unit": "mm/s",
+      "kind": "vibration",
+      "range_min": 0.0,
+      "range_max": 30.0,
+      "noise_sigma": 0.09,
+      "resolution": 0.01,
+      "lag_s": 1.0,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 2.0,
+      "description": "Compressor vibration"
+    },
+    {
+      "tag": "HT-CH-01-WINDT",
+      "source": "HT-CH-01.T_winding_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": -20.0,
+      "range_max": 110.0,
+      "noise_sigma": 0.08,
+      "resolution": 0.05,
+      "lag_s": 6.0,
+      "sample_interval_s": 1.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.3,
+      "description": "Motor winding temperature"
+    },
+    {
+      "tag": "HT-CH-01-EXV",
+      "source": "HT-CH-01.exv_position",
+      "unit": "%",
+      "kind": "position",
+      "range_min": 0.0,
+      "range_max": 100.0,
+      "noise_sigma": 0.3,
+      "resolution": 0.1,
+      "lag_s": 1.0,
+      "sample_interval_s": 5.0,
+      "scale": 100.0,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Expansion valve position"
+    },
+    {
+      "tag": "PLANT-CHWST",
+      "source": "plant.T_chws_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 0.0,
+      "range_max": 30.0,
+      "noise_sigma": 0.04,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Common header chilled-water supply"
+    },
+    {
+      "tag": "PLANT-CHWRT",
+      "source": "plant.T_chwr_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 0.0,
+      "range_max": 30.0,
+      "noise_sigma": 0.04,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Common header chilled-water return"
+    },
+    {
+      "tag": "PLANT-CWST",
+      "source": "plant.T_cw_supply_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 10.0,
+      "range_max": 60.0,
+      "noise_sigma": 0.05,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Common header condenser-water supply"
+    },
+    {
+      "tag": "PLANT-CWRT",
+      "source": "plant.T_cw_return_K",
+      "unit": "degC",
+      "kind": "temperature",
+      "range_min": 10.0,
+      "range_max": 60.0,
+      "noise_sigma": 0.05,
+      "resolution": 0.01,
+      "lag_s": 12.0,
+      "sample_interval_s": 5.0,
+      "scale": 1.0,
+      "offset": -273.15,
+      "accuracy_pct_fs": 0.2,
+      "description": "Common header condenser-water return"
+    },
+    {
+      "tag": "PLANT-DP",
+      "source": "plant.dp_secondary_Pa",
+      "unit": "kPa",
+      "kind": "pressure",
+      "range_min": 0.0,
+      "range_max": 1000.0,
+      "noise_sigma": 1.5,
+      "resolution": 1.0,
+      "lag_s": 1.0,
+      "sample_interval_s": 5.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 0.5,
+      "description": "Distribution differential pressure"
+    },
+    {
+      "tag": "PLANT-KW",
+      "source": "plant.power_plant_W",
+      "unit": "kW",
+      "kind": "power",
+      "range_min": 0.0,
+      "range_max": 1200.0,
+      "noise_sigma": 2.5,
+      "resolution": 0.5,
+      "lag_s": 2.0,
+      "sample_interval_s": 5.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Total plant electrical power"
+    },
+    {
+      "tag": "PLANT-LOAD",
+      "source": "plant.Q_plant_W",
+      "unit": "kW",
+      "kind": "power",
+      "range_min": 0.0,
+      "range_max": 1200.0,
+      "noise_sigma": 2.5,
+      "resolution": 0.5,
+      "lag_s": 2.0,
+      "sample_interval_s": 5.0,
+      "scale": 0.001,
+      "offset": 0.0,
+      "accuracy_pct_fs": 1.0,
+      "description": "Total plant cooling duty"
+    }
+  ],
+  "truth_columns": [
+    {
+      "name": "HT-CH-01-COND.M_ref_kg",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.P_cond_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.P_saturation_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.Q_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.T_cond_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.T_water_out_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.UA_eff",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.approach_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.dP_water_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.level_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.mdot_leak_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.mdot_water_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-COND.subcooling_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.M_ref_kg",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.P_evap_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.Q_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.T_evap_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.T_water_out_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.UA_eff",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.approach_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.available_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.dP_water_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.level_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.mdot_leak_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.mdot_water_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01-EVAP.superheat_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.COP",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.P_cond_Pa",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.P_cond_saturation_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.P_evap_Pa",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.P_noncondensable_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.Q_cond_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.Q_evap_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.T_chw_entering_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_chw_leaving_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_cond_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_cw_entering_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_cw_leaving_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_discharge_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_evap_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.T_winding_K",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.antisurge_active",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.axial_thrust_N",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.capacity_RT",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.capacity_demand",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.charge_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.charge_kg",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.chw_flow_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.cond_UA_W_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.cond_approach_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.cond_level_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.current_A",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.cw_flow_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.enabled",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.eta_poly",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.evap_UA_W_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.evap_approach_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.evap_level_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.evap_submergence",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.exv_command",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.exv_position",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.exv_saturated",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.hgbp_command",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.igv_position",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.kW_per_RT",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.lift_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.load_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.mdot_chw_kg_s",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.mdot_cw_kg_s",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.mdot_evap_side_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.mdot_exv_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.mdot_hgbp_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.mdot_leak_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.mdot_ref_kg_s",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.power_elec_W",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.power_shaft_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.pressure_ratio",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.residual_norm",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.running",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.speed_floor_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.speed_rpm",
+      "role": "measurable"
+    },
+    {
+      "name": "HT-CH-01.start_inhibit",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.subcooling_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.suction_pulsation_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.superheat_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.surge_active",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.surge_count",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.surge_margin",
+      "role": "truth_only"
+    },
+    {
+      "name": "HT-CH-01.vibration_mm_s",
+      "role": "measurable"
+    },
+    {
+      "name": "node.chw_in.T_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "node.chw_out.T_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "node.cw_in.T_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "node.cw_out.T_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.P_chwr_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.P_chws_Pa",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.Q_plant_W",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.T_chwr_K",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.T_chws_K",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.T_cw_return_K",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.T_cw_supply_K",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.T_hall_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.chillers_running",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.cw_setpoint_K",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.dp_secondary_Pa",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.plant_COP",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.plant_efficiency_kW_RT",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.plant_load_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.power_chillers_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.power_plant_W",
+      "role": "measurable"
+    },
+    {
+      "name": "plant.power_pumps_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.power_terminals_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.power_towers_W",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.secondary_pump_fraction",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.secondary_saturated",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.tower_fan_speed",
+      "role": "truth_only"
+    },
+    {
+      "name": "plant.tower_saturated",
+      "role": "truth_only"
+    }
+  ],
+  "events": [
+    {
+      "time_s": 140170.91150932747,
+      "kind": "protection",
+      "asset": "HT-CH-01",
+      "name": "high_superheat",
+      "action": "alarm",
+      "signal": "superheat_K",
+      "value": 18.041032378246292,
+      "limit": 18.0,
+      "reason": "Suction superheat high; possible low refrigerant charge.",
+      "scenario_time_s": 53770.911509327474
+    },
+    {
+      "time_s": 150324.20215488208,
+      "kind": "protection",
+      "asset": "HT-CH-01",
+      "name": "loss_of_charge",
+      "action": "trip",
+      "signal": "superheat_K",
+      "value": 25.17969064884869,
+      "limit": 25.0,
+      "reason": "Suction superheat far above normal for five minutes: evaporator bundle uncovered, refrigerant charge lost.",
+      "scenario_time_s": 63924.20215488208
+    },
+    {
+      "time_s": 150324.20215488208,
+      "kind": "stage_off_unavailable",
+      "chiller": "HT-CH-01",
+      "reason": "machine reported unavailable (tripped or locked out)",
+      "scenario_time_s": 63924.20215488208
+    }
+  ],
+  "terminal_event": {
+    "time_s": 150324.20215488208,
+    "kind": "protection",
+    "asset": "HT-CH-01",
+    "name": "loss_of_charge",
+    "action": "trip",
+    "signal": "superheat_K",
+    "value": 25.17969064884869,
+    "limit": 25.0,
+    "reason": "Suction superheat far above normal for five minutes: evaporator bundle uncovered, refrigerant charge lost.",
+    "scenario_time_s": 63924.20215488208
+  },
+  "conservation": {
+    "energy_chiller_relative": {
+      "max": 0.1011144198889657,
+      "mean": 0.003418012291427239,
+      "time_weighted": true
+    },
+    "energy_rejection_relative": {
+      "max": 1.0,
+      "mean": 0.9963645746216351,
+      "time_weighted": true
+    },
+    "cycle_residual_W": {
+      "max": 0.00014736514482259938,
+      "mean": 1.65522568030624e-05,
+      "time_weighted": true
+    },
+    "refrigerant_mass_start_kg": 1149.9999999999998,
+    "refrigerant_mass_end_kg": 143.3610750533694,
+    "refrigerant_mass_relative_drift": -0.8753381956057658
+  },
+  "solver": {
+    "steps": 17116,
+    "dt_min_s": 1.4994162841843877,
+    "dt_max_s": 47.216864583775674,
+    "wall_time_s": 365.53,
+    "realtime_speedup": 412.9,
+    "hydraulic_residual_max": 0.0,
+    "hydraulic_non_converged_samples": 0,
+    "hydraulic_non_converged_first_t": null,
+    "thermal_iterations_max": 2
+  },
+  "signature_check": [
+    {
+      "fault": "F01",
+      "definition": "chiller.refrigerant_leak_high_side",
+      "signal": "cond_level_fraction",
+      "aliasing_risk": false,
+      "key": "HT-CH-01.cond_level_fraction",
+      "expected": "fall",
+      "observed": "fall",
+      "agrees": true,
+      "relative_change": -0.89513,
+      "relative_spread": 0.90193,
+      "window_end_s": 150324.20215488208,
+      "window_samples": 2508,
+      "order": 1,
+      "note": "liquid holdup drains"
+    },
+    {
+      "fault": "F01",
+      "definition": "chiller.refrigerant_leak_high_side",
+      "signal": "subcooling_K",
+      "aliasing_risk": false,
+      "key": "HT-CH-01.subcooling_K",
+      "expected": "fall",
+      "observed": "fall",
+      "agrees": true,
+      "relative_change": -0.89513,
+      "relative_spread": 0.90193,
+      "window_end_s": 150324.20215488208,
+      "window_samples": 2508,
+      "order": 1,
+      "note": "subcooler uncovers"
+    },
+    {
+      "fault": "F01",
+      "definition": "chiller.refrigerant_leak_high_side",
+      "signal": "charge_kg",
+      "aliasing_risk": false,
+      "key": "HT-CH-01.charge_kg",
+      "expected": "fall",
+      "observed": "fall",
+      "agrees": true,
+      "relative_change": -0.87313,
+      "relative_spread": 0.87313,
+      "window_end_s": 150324.20215488208,
+      "window_samples": 2508,
+      "order": 1,
+      "note": "mass balance"
+    },
+    {
+      "fault": "F01",
+      "definition": "chiller.refrigerant_leak_high_side",
+      "signal": "superheat_K",
+      "aliasing_risk": false,
+      "key": "HT-CH-01.superheat_K",
+      "expected": "rise",
+      "observed": "rise",
+      "agrees": true,
+      "relative_change": 19.98308,
+      "relative_spread": 19.98308,
+      "window_end_s": 150324.20215488208,
+      "window_samples": 2508,
+      "order": 3,
+      "note": "evaporator starves"
+    },
+    {
+      "fault": "F01",
+      "definition": "chiller.refrigerant_leak_high_side",
+      "signal": "Q_evap_W",
+      "aliasing_risk": false,
+      "key": "HT-CH-01.Q_evap_W",
+      "expected": "fall",
+      "observed": "fall",
+      "agrees": true,
+      "relative_change": -0.56063,
+      "relative_spread": 0.56761,
+      "window_end_s": 150324.20215488208,
+      "window_samples": 2508,
+      "order": 4,
+      "note": "capacity declines"
+    }
+  ],
+  "settle": {
+    "converged": true,
+    "residual_K_per_s": 0.00021875771232625365
+  },
+  "warnings": [],
+  "counts": {
+    "samples": 2518,
+    "sensor_tags": 25,
+    "truth_columns": 116,
+    "events": 3,
+    "keppel_tags": 83,
+    "keppel_rows": 2516
+  },
+  "keppel_tags": [
+    {
+      "tag": "CH-CHWR-FLOW",
+      "class": "measured",
+      "unit": "l/s",
+      "source": "mdot_chw_kg_s",
+      "noise_sigma": 0.36,
+      "resolution": 0.001,
+      "lag_s": 4.0,
+      "update_interval_s": 60.0,
+      "description": "Chilled water flow rate"
+    },
+    {
+      "tag": "CH-CHWR-PRESS",
+      "class": "derived",
+      "unit": "psig",
+      "description": "Chilled water pressure at evaporator inlet, psi gauge: outlet pressure plus the barrel loss at the metered flow"
+    },
+    {
+      "tag": "CH-CHWRT",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_chw_entering_K",
+      "noise_sigma": 0.01,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Chilled water return temperature (header RTD; reads 0.16 K below the barrel one that drives the model)"
+    },
+    {
+      "tag": "CH-CHW-SP",
+      "class": "derived",
+      "unit": "degC",
+      "description": "Chilled water supply setpoint register, as the site exports it"
+    },
+    {
+      "tag": "CH-CHWS-PRESS",
+      "class": "derived",
+      "unit": "psig",
+      "description": "Chilled water pressure at evaporator outlet, psi gauge (riser static, from the site)"
+    },
+    {
+      "tag": "CH-CHWST",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_chw_leaving_K",
+      "noise_sigma": 0.034,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Chilled water supply temperature (header RTD; 0.10 K below the barrel one)"
+    },
+    {
+      "tag": "CH-COMP-RUN-HR",
+      "class": "derived",
+      "unit": "s",
+      "description": "Compressor running counter; the site's register counts seconds (+60 per minute)"
+    },
+    {
+      "tag": "CH-CON-APP-TEMP",
+      "class": "derived",
+      "unit": "degC",
+      "description": "Condenser approach = CH-CON-L-TEMP - CH-CON-RFT-TEMP (the site's sign convention: water minus refrigerant)"
+    },
+    {
+      "tag": "CH-CON-E-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_cw_entering_K",
+      "noise_sigma": 0.09,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser entering water temperature (barrel RTD: the tag the model is driven by)"
+    },
+    {
+      "tag": "CH-CON-L-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_cw_leaving_K",
+      "noise_sigma": 0.093,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser leaving water temperature (barrel RTD: the channel the model was validated on)"
+    },
+    {
+      "tag": "CH-CON-RFT-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_cond_K",
+      "noise_sigma": 0.092,
+      "resolution": 0.001,
+      "lag_s": 6.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser refrigerant temperature"
+    },
+    {
+      "tag": "CH-CWR-PRESS",
+      "class": "derived",
+      "unit": "psig",
+      "description": "Condenser water pressure at condenser outlet, psi gauge: inlet pressure less the barrel loss at the metered flow"
+    },
+    {
+      "tag": "CH-CWRT",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_cw_leaving_K",
+      "noise_sigma": 0.13,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser water return temperature (header RTD; 0.21 K below the barrel one)"
+    },
+    {
+      "tag": "CH-CWS-FLOW",
+      "class": "measured",
+      "unit": "l/s",
+      "source": "mdot_cw_kg_s",
+      "noise_sigma": 3.5,
+      "resolution": 0.001,
+      "lag_s": 4.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser water flow rate"
+    },
+    {
+      "tag": "CH-CWS-PRESS",
+      "class": "derived",
+      "unit": "psig",
+      "description": "Condenser water pressure at condenser inlet, psi gauge (static, from the site)"
+    },
+    {
+      "tag": "CH-CWST",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_cw_entering_K",
+      "noise_sigma": 0.039,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Condenser water supply temperature (header RTD; 0.22 K below the barrel one)"
+    },
+    {
+      "tag": "CH-EVA-APP-TEMP",
+      "class": "derived",
+      "unit": "degC",
+      "description": "Evaporator approach = CH-EVA-L-TEMP - CH-EVA-RFT-TEMP"
+    },
+    {
+      "tag": "CH-EVA-E-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_chw_entering_K",
+      "noise_sigma": 0.012,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Evaporator entering water temperature (barrel RTD: the tag the model is driven by)"
+    },
+    {
+      "tag": "CH-EVA-L-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_chw_leaving_K",
+      "noise_sigma": 0.023,
+      "resolution": 0.001,
+      "lag_s": 12.0,
+      "update_interval_s": 60.0,
+      "description": "Evaporator leaving water temperature (barrel RTD: the model's setpoint reference)"
+    },
+    {
+      "tag": "CH-EVA-RFT-PRES",
+      "class": "measured",
+      "unit": "kPa",
+      "source": "P_evap_Pa",
+      "noise_sigma": 0.071,
+      "resolution": 0.001,
+      "lag_s": 0.3,
+      "update_interval_s": 60.0,
+      "description": "Evaporator refrigerant pressure, absolute"
+    },
+    {
+      "tag": "CH-EVA-RFT-TEMP",
+      "class": "measured",
+      "unit": "degC",
+      "source": "T_evap_K",
+      "noise_sigma": 0.019,
+      "resolution": 0.001,
+      "lag_s": 6.0,
+      "update_interval_s": 60.0,
+      "description": "Evaporator refrigerant temperature"
+    },
+    {
+      "tag": "CH-HB",
+      "class": "derived",
+      "unit": "%",
+      "description": "Heat balance, % = (HEAT-IN - HEAT-OUT) / HEAT-OUT x 100"
+    },
+    {
+      "tag": "CH-HEAT-IN",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Energy in = CH-CHW-KW + CH-KW_A"
+    },
+    {
+      "tag": "CH-HEAT-OUT",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Energy out = CH-CDW-KW"
+    },
+    {
+      "tag": "CH-IGV1-POS",
+      "class": "measured",
+      "unit": "%",
+      "source": "igv_position",
+      "noise_sigma": 0.0,
+      "resolution": 0.01,
+      "lag_s": 1.0,
+      "update_interval_s": 60.0,
+      "description": "Inlet guide vane position"
+    },
+    {
+      "tag": "CH-KW_A",
+      "class": "measured",
+      "unit": "kW",
+      "source": "power_elec_W",
+      "noise_sigma": 1.19,
+      "resolution": 0.001,
+      "lag_s": 2.0,
+      "update_interval_s": 60.0,
+      "description": "Chiller power from the A supply (the live feed on HT-CH-01)"
+    },
+    {
+      "tag": "CH-KW_B",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Chiller power from the B supply: zero, the B feed is idle on HT-CH-01"
+    },
+    {
+      "tag": "CH-KW/RTON",
+      "class": "derived",
+      "unit": "kW/RT",
+      "description": "Chiller efficiency = CH-KW_A / CH-CHW-RTON"
+    },
+    {
+      "tag": "CH-L1-A",
+      "class": "derived",
+      "unit": "A",
+      "description": "Motor L1 current = CH-KW_A / (sqrt3 x V x 0.81), with the site's phase imbalance"
+    },
+    {
+      "tag": "CH-L2-A",
+      "class": "derived",
+      "unit": "A",
+      "description": "Motor L2 current, as L1"
+    },
+    {
+      "tag": "CH-L3-A",
+      "class": "derived",
+      "unit": "A",
+      "description": "Motor L3 current, as L1"
+    },
+    {
+      "tag": "CH-OIL-DIS-PRES",
+      "class": "measured",
+      "unit": "kPa",
+      "source": "P_evap_Pa",
+      "noise_sigma": 1.22,
+      "resolution": 0.001,
+      "lag_s": 1.0,
+      "update_interval_s": 60.0,
+      "description": "Oil pump discharge pressure: tank pressure plus the oil pump's 166 kPa head"
+    },
+    {
+      "tag": "CH-OIL-DIS-TEMP",
+      "class": "derived",
+      "unit": "degC",
+      "description": "Oil discharge temperature: follows condenser water supply (0.89 x CH-CWST + 12.4 on the site)"
+    },
+    {
+      "tag": "CH-OIL-TK-PRES",
+      "class": "measured",
+      "unit": "kPa",
+      "source": "P_evap_Pa",
+      "noise_sigma": 0.128,
+      "resolution": 0.001,
+      "lag_s": 1.0,
+      "update_interval_s": 60.0,
+      "description": "Oil tank pressure: the sump sits at evaporator pressure on this low-pressure machine (site offset -0.6 kPa)"
+    },
+    {
+      "tag": "CH-RLA",
+      "class": "derived",
+      "unit": "% RLA",
+      "description": "Motor average current as % of 831 A rated load amps"
+    },
+    {
+      "tag": "CHEM-TK-01-PH",
+      "class": "replay",
+      "unit": "pH",
+      "description": "Condenser water pH, site record of the same day"
+    },
+    {
+      "tag": "CHWP-KW_A",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Chilled water pump power, from the metered flow on the site's pump curve"
+    },
+    {
+      "tag": "CHWP-KW_B",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Chilled water pump power from the B supply: zero"
+    },
+    {
+      "tag": "CHWP-VSD-FB",
+      "class": "derived",
+      "unit": "Hz",
+      "description": "Chilled water pump VSD feedback, Hz, from the metered flow"
+    },
+    {
+      "tag": "CHWP-KW/RTON",
+      "class": "derived",
+      "unit": "kW/RT",
+      "description": "Chilled water pump efficiency = CHWP-KW_A / CH-CHW-RTON"
+    },
+    {
+      "tag": "CWP-KW_A",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Condenser water pump power, from the metered flow on the site's pump curve"
+    },
+    {
+      "tag": "CWP-KW_B",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Condenser water pump power from the B supply: zero"
+    },
+    {
+      "tag": "CWP-VSD-FB",
+      "class": "derived",
+      "unit": "Hz",
+      "description": "Condenser water pump VSD feedback, Hz, from the metered flow"
+    },
+    {
+      "tag": "TOT-CH-CDW-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chiller heat rejection, rebuilt"
+    },
+    {
+      "tag": "TOT-CH-CDW-RTON",
+      "class": "total",
+      "unit": "RT",
+      "description": "Total chiller heat rejection, RT"
+    },
+    {
+      "tag": "TOT-CH-CHW-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chiller cooling capacity, rebuilt"
+    },
+    {
+      "tag": "TOT-CH-CHW-RTON",
+      "class": "total",
+      "unit": "RT",
+      "description": "Total chiller cooling capacity, RT"
+    },
+    {
+      "tag": "TOT-CH-HB",
+      "class": "total",
+      "unit": "%",
+      "description": "Total chiller heat balance, % = (IN - OUT) / OUT x 100"
+    },
+    {
+      "tag": "TOT-CH-HEAT-IN",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chiller energy in, rebuilt"
+    },
+    {
+      "tag": "TOT-CH-HEAT-OUT",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chiller energy out, rebuilt"
+    },
+    {
+      "tag": "TOT-CH-KW/RTON",
+      "class": "total",
+      "unit": "kW/RT",
+      "description": "Total chiller efficiency = TOT-DPM-CH-KW / TOT-CH-CHW-RTON"
+    },
+    {
+      "tag": "TOT-CHWP-KW/RTON",
+      "class": "total",
+      "unit": "kW/RT",
+      "description": "Total CHW pump efficiency = TOT-DPM-CHWP-KW / TOT-CH-CHW-RTON"
+    },
+    {
+      "tag": "TOT-CT-KW/RTON",
+      "class": "total",
+      "unit": "kW/RT",
+      "description": "Total tower efficiency = TOT-DPM-CT-KW / TOT-CH-CHW-RTON"
+    },
+    {
+      "tag": "TOT-CWP-KW/RTON",
+      "class": "total",
+      "unit": "kW/RT",
+      "description": "Total CW pump efficiency = TOT-DPM-CDWP-KW / TOT-CH-CHW-RTON"
+    },
+    {
+      "tag": "TOT-DPM-CDWP-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total condenser water pump power, rebuilt the same way"
+    },
+    {
+      "tag": "TOT-DPM-CH-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chiller power: site total less site HT-CH-01 plus the twin"
+    },
+    {
+      "tag": "TOT-DPM-CHWP-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total chilled water pump power, rebuilt the same way"
+    },
+    {
+      "tag": "TOT-DPM-CT-KW",
+      "class": "replay",
+      "unit": "kW",
+      "description": "Total cooling tower power, site record of the same day"
+    },
+    {
+      "tag": "TOT-DPM-SYS-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Total plant power = chillers + CHW pumps + CW pumps + towers"
+    },
+    {
+      "tag": "TOT-HDR-CDW-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Header heat rejection, rebuilt"
+    },
+    {
+      "tag": "TOT-HDR-CDW-RTON",
+      "class": "total",
+      "unit": "RT",
+      "description": "Header heat rejection, RT"
+    },
+    {
+      "tag": "TOT-HDR-CHW-KW",
+      "class": "total",
+      "unit": "kW",
+      "description": "Header cooling capacity, rebuilt"
+    },
+    {
+      "tag": "TOT-HDR-CHW-RTON",
+      "class": "total",
+      "unit": "RT",
+      "description": "Header cooling capacity, RT"
+    },
+    {
+      "tag": "TOT-HDR-HB",
+      "class": "total",
+      "unit": "%",
+      "description": "Header heat balance, % = (IN - OUT) / OUT x 100"
+    },
+    {
+      "tag": "TOT-HDR-HEAT-IN",
+      "class": "total",
+      "unit": "kW",
+      "description": "Header energy in, rebuilt"
+    },
+    {
+      "tag": "TOT-HDR-HEAT-OUT",
+      "class": "total",
+      "unit": "kW",
+      "description": "Header energy out, rebuilt"
+    },
+    {
+      "tag": "TOT-SYS-KW/RTON",
+      "class": "total",
+      "unit": "kW/RT",
+      "description": "Plant efficiency = TOT-DPM-SYS-KW / TOT-HDR-CHW-RTON"
+    },
+    {
+      "tag": "CH-OIL-TK-TEMP",
+      "class": "replay",
+      "unit": "degC",
+      "description": "Oil tank temperature, site record of the same day"
+    },
+    {
+      "tag": "CH-CHW-RTON",
+      "class": "derived",
+      "unit": "RT",
+      "description": "Chiller cooling load, RT = CH-CHW-KW / 3.517"
+    },
+    {
+      "tag": "CH-V-A",
+      "class": "measured",
+      "unit": "acceleration",
+      "source": "vibration_mm_s",
+      "noise_sigma": 0.0058,
+      "resolution": 0.001,
+      "lag_s": 1.0,
+      "update_interval_s": 120.0,
+      "description": "Chiller housing motor vertical acceleration, scaled to the site's healthy level"
+    },
+    {
+      "tag": "CH-H-A",
+      "class": "measured",
+      "unit": "acceleration",
+      "source": "vibration_mm_s",
+      "noise_sigma": 0.0056,
+      "resolution": 0.001,
+      "lag_s": 1.0,
+      "update_interval_s": 120.0,
+      "description": "Chiller housing motor horizontal acceleration, scaled to the site's healthy level"
+    },
+    {
+      "tag": "CH-CHWP-V-A",
+      "class": "replay",
+      "unit": "acceleration",
+      "description": "Chilled water pump housing vertical acceleration, site record"
+    },
+    {
+      "tag": "CH-CHWP-H-A",
+      "class": "replay",
+      "unit": "acceleration",
+      "description": "Chilled water pump housing horizontal acceleration, site record"
+    },
+    {
+      "tag": "CH-CWP-V-A",
+      "class": "replay",
+      "unit": "acceleration",
+      "description": "Condenser water pump housing vertical acceleration, site record"
+    },
+    {
+      "tag": "CH-CWP-H-A",
+      "class": "replay",
+      "unit": "acceleration",
+      "description": "Condenser water pump housing horizontal acceleration, site record"
+    },
+    {
+      "tag": "CH-CON-RFT-PRES",
+      "class": "measured",
+      "unit": "kPa",
+      "source": "P_cond_Pa",
+      "noise_sigma": 0.79,
+      "resolution": 0.001,
+      "lag_s": 0.3,
+      "update_interval_s": 60.0,
+      "description": "Condenser refrigerant pressure, absolute (total pressure on the shell)"
+    },
+    {
+      "tag": "CDWP-KW/RTON",
+      "class": "derived",
+      "unit": "kW/RT",
+      "description": "Condenser water pump efficiency = CWP-KW_A / CH-CHW-RTON"
+    },
+    {
+      "tag": "CH-AB-V",
+      "class": "derived",
+      "unit": "V",
+      "description": "Motor line voltage AB"
+    },
+    {
+      "tag": "CH-BC-V",
+      "class": "derived",
+      "unit": "V",
+      "description": "Motor line voltage BC"
+    },
+    {
+      "tag": "CH-CA-V",
+      "class": "derived",
+      "unit": "V",
+      "description": "Motor line voltage CA"
+    },
+    {
+      "tag": "CH-CDW-KW",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Heat rejection, kW = 4.19 x CH-CWS-FLOW x (CH-CWRT - CH-CWST)"
+    },
+    {
+      "tag": "CH-CDW-RTON",
+      "class": "derived",
+      "unit": "RT",
+      "description": "Heat rejection, RT = CH-CDW-KW / 3.517"
+    },
+    {
+      "tag": "CH-CHW-KW",
+      "class": "derived",
+      "unit": "kW",
+      "description": "Chiller cooling load, kW = 4.19 x CH-CHWR-FLOW x (CH-CHWRT - CH-CHWST)"
+    }
+  ],
+  "seed": 20261001,
+  "background": {
+    "profile": "site_day_80",
+    "day": "2026-08-21",
+    "file": "site_day_80_background.csv",
+    "plant_tags_filled_from_80pct_day": []
+  },
+  "files": {
+    "sensors_csv": "/Users/mingchenxu/Desktop/projects/rca_demo/RCATwin/exports/r2f/leak_liquid_moderate_80pct_sensors.csv",
+    "truth_csv": "/Users/mingchenxu/Desktop/projects/rca_demo/RCATwin/exports/r2f/leak_liquid_moderate_80pct_truth.csv",
+    "manifest_json": "/Users/mingchenxu/Desktop/projects/rca_demo/RCATwin/exports/r2f/leak_liquid_moderate_80pct_manifest.json",
+    "twin_sensors_csv": "/Users/mingchenxu/Desktop/projects/rca_demo/RCATwin/exports/r2f/leak_liquid_moderate_80pct_twin_sensors.csv",
+    "cascade_csv": "/Users/mingchenxu/Desktop/projects/rca_demo/RCATwin/exports/r2f/leak_liquid_moderate_80pct_cascade.csv"
+  },
+  "cascade": {
+    "first_departure": {
+      "tag": "cond_level_fraction",
+      "minutes_after_onset": 59
+    },
+    "tags_departed": 49,
+    "predicted_agree": 5,
+    "predicted_disagree": [],
+    "order_observed": [
+      "cond_level_fraction",
+      "subcooling_K",
+      "CH-KW_A",
+      "CH-RLA",
+      "CH-L1-A",
+      "CH-L3-A",
+      "CH-L2-A",
+      "CH-KW/RTON",
+      "TOT-DPM-CH-KW",
+      "charge_kg",
+      "TOT-CH-KW/RTON",
+      "TOT-DPM-SYS-KW",
+      "CH-EVA-RFT-TEMP",
+      "CH-EVA-RFT-PRES",
+      "CH-EVA-APP-TEMP",
+      "CH-OIL-TK-PRES",
+      "TOT-SYS-KW/RTON",
+      "CH-OIL-DIS-PRES",
+      "CH-HEAT-IN",
+      "superheat_K",
+      "TOT-HDR-HEAT-IN",
+      "CH-EVA-L-TEMP",
+      "CH-CHWST",
+      "CH-CHW-KW",
+      "CH-CHW-RTON",
+      "TOT-HDR-CHW-KW",
+      "TOT-HDR-CHW-RTON",
+      "TOT-CH-CHW-KW",
+      "TOT-CH-CHW-RTON",
+      "CHWP-KW/RTON",
+      "CH-CON-L-TEMP",
+      "CH-CON-RFT-TEMP",
+      "TOT-CH-HEAT-IN",
+      "CH-CWRT",
+      "CH-CON-RFT-PRES",
+      "CH-CDW-KW",
+      "CH-CDW-RTON",
+      "CH-HEAT-OUT",
+      "CDWP-KW/RTON",
+      "TOT-CHWP-KW/RTON",
+      "TOT-CH-CDW-KW",
+      "TOT-CH-CDW-RTON",
+      "TOT-CH-HEAT-OUT",
+      "TOT-CT-KW/RTON",
+      "TOT-CWP-KW/RTON",
+      "TOT-HDR-CDW-KW",
+      "TOT-HDR-CDW-RTON",
+      "TOT-HDR-HEAT-OUT",
+      "CH-HB"
+    ],
+    "window_min": [
+      1440,
+      2504
+    ],
+    "departure_test": {
+      "band": "max(3 sigma / sqrt(window), resolution)",
+      "window_min": 15,
+      "hold_min": 10,
+      "sigma": "the tag's own minute-to-minute noise on the healthy run"
+    }
+  }
+}
