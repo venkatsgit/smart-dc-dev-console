@@ -1,38 +1,58 @@
 # Cooling-tower fan failed
 
 Primary root cause: **a cooling-tower fan (or a cell) stops**, so the tower cannot reject heat.  
-Entering condenser-water temperature rises. The chiller tubes can be clean. The water flow can be normal.
+The entering condenser-water temperature rises. The chiller tubes are clean and the water flow is normal, but the "sink" is too hot.
 
 **Evidence:** Taken from the **Trane**, **Carrier**, **York / JCI**, and **Daikin** OEM manuals in [`references/`](references/): [`Trane_CVHE-SVX005E-EN.pdf`](references/Trane_CVHE-SVX005E-EN.pdf), [`Trane_CVHE-SVU01E-EN_CH530.pdf`](references/Trane_CVHE-SVU01E-EN_CH530.pdf), [`Carrier_19XR_startup.pdf`](references/Carrier_19XR_startup.pdf), [`York_YK_Style_G_160.75.pdf`](references/York_YK_Style_G_160.75.pdf), [`Daikin_IOM1210_Magnitude_WMC-D.pdf`](references/Daikin_IOM1210_Magnitude_WMC-D.pdf), [`Daikin_IOM1372_Magnitude_WME-D.pdf`](references/Daikin_IOM1372_Magnitude_WME-D.pdf).  
-**Sources:** Trane high discharge — **high condenser water entering temperature**. Carrier 19XR **235** — high condenser water temperatures. York YK: reduce condenser-water inlet temperature; check cooling tower and water circulation. Daikin: condenser-water temperature and flow as high-pressure causes. This is the Singapore-typical “hot afternoon” plant fault.
+**Sources (same trip names in OEM manuals):** Trane high discharge — **high condenser water entering temperature**. Carrier 19XR **235** — high condenser water temperatures. York YK: reduce condenser-water inlet temperature. Daikin: condenser-water temperature and flow as high-pressure causes.
 
 ---
 
 ## 0. The Healthy State
 
-1. **The tower is the heat dump for the whole plant.** Condenser water leaves the chiller hot, is cooled in the tower fill by air, and comes back as **entering condenser-water temperature**.
-2. **On the current 80% site day** that return sat about **28.5–31.0 °C** (mean ~29.1 °C). The chiller’s condenser pressure is built on that water. The compressor climb is sized for that ceiling.
-3. **Fans and cells are the air side.** Fill, fan, and water flow together set tower approach (how close leaving tower water gets to wet-bulb).
-4. **What “healthy” looks like.** `CH-CON-E-TEMP` follows a smooth daily swing, not a step up of several degrees with no weather change. Condenser pressure tracks that water. Fans are running. Chiller power is the usual lift cost.
+The cooling tower is the "heat dump" for the entire chiller plant.
+
+1. **The Heat Dump.** Hot water leaves the chiller condenser, goes to the tower, gets cooled by outdoor air (moved by fans), and returns to the chiller as **Entering Condenser Water**.
+2. **The Fan's Job.** The fans pull air through the tower to evaporate a small amount of water, which carries the building's heat away into the atmosphere. 
+3. **Lift (The Climb).** The compressor lifts heat from the building "floor" to the tower "ceiling." A healthy tower keeps the ceiling low (e.g., **29 °C** return water), making the compressor's job easier.
+4. **What "healthy" looks like.** The **Entering Condenser Water Temperature** (`CH-CON-E-TEMP`) follows a smooth daily swing based on the weather. Tower fans are running. Condenser pressure is normal for the current outdoor temperature. Chiller power (kW) is steady.
 
 ---
 
-## 1. The Fault
+## 1. The Fault: Fan Failure
 
-**The knob.** Fail one (or more) tower fans, or raise the **entering condenser-water** boundary as if a cell died, and hold it. Do not reduce condenser-water **flow** unless the cell also isolates (that would be a combined case). The clean first pack is: **flow stays**, **entering temperature rises**.
+**The knob.** Fail one or more tower fans, or simulate a dead tower cell. This causes the **Entering Condenser Water Temperature** to rise sharply while the water **flow** stays normal.
+
+**Sensors to watch.** The primary signature is that the water arrives at the chiller already "too hot."
+
+| Sensor | Role | What happens in this fault |
+| --- | --- | --- |
+| Entering Condenser Water Temp | The "sink" temperature | **Spikes.** The water comes back from the tower without being cooled. |
+| Condenser Refrigerant Pressure | The **ceiling** of the climb | **Rises.** The gas cannot dump heat into hot water, so pressure builds. |
+| Condenser Water Flow | The transport rate | **Normal.** The pumps are still moving water, but the water is hot. |
+| Evaporator Refrigerant Pressure | The **floor** of the climb | Stays normal. |
+| Lift (Condenser - Evaporator) | The hill the compressor climbs | **Grows** because the ceiling rises. |
+| Compressor Power / kW | Motor effort | **Rises** as lift increases. |
+
+### Understanding Pressure and Lift
+
+To diagnose a tower failure, you must look at the water temperature entering the machine:
+
+*   **Entering Condenser Water Temp:** This is the temperature of the "sink." If this rises, the refrigerant has nowhere to dump its heat.
+*   **Condenser Refrigerant Pressure:** The "ceiling." It rises because the refrigerant gas stays hot. It cannot condense into a liquid if the water touching the tubes is already near the refrigerant's boiling point.
+*   **Lift:** The physical "climb." Since the building "floor" (Evaporator) is fine, but the outdoor "ceiling" (Condenser) has risen due to the fan failure, the compressor must work much harder.
+
+**Why this is different from Fouling:** In **fouling**, the water entering the machine is cool, but the tubes are dirty. In **fan failure**, the tubes are clean, but the water entering the machine is **already hot**.
 
 **The chain.**
 
-1. **The heat sink gets hotter.** Water comes back from the tower warmer. `CH-CON-E-TEMP` is the first site tag. This is **not** fouling. Fouling does not heat the water entering the machine.
-2. **Condenser refrigerant must run hotter.** To dump heat into warmer water, the gas sits at a higher temperature and pressure.
-3. **Lift grows.** Same evaporator, higher condenser. Power and current rise. kW/ton worsens. Surge margin falls.
-4. **Plant totals move.** Other chillers on the same loop see the same hot water. This is why a later “subsystem” pack matters — but the first R2F case can still be one chiller on a hotter CW-in boundary.
-5. **Trip.** **High condenser pressure** and/or **surge**. Same cutouts as low condenser-water flow, but the first mover is **entering temperature**, not flow.
+1. **Tower fan stops.** The air flow through the tower fill disappears. Heat rejection stops.
+2. **Entering water temperature rises.** The water loop quickly warms up because it isn't being cooled outdoors.
+3. **Condenser pressure rises.** The hot refrigerant gas in the condenser meets hot water. Heat transfer slows down, and pressure builds. The **ceiling moves up**.
+4. **Lift grows.** With a normal floor (Evaporator) and a rising ceiling (Condenser), the compressor work and **kW rise**.
+5. **Trip.** The machine hits the **High Condenser (Discharge) Pressure** limit or potentially **Surge** as the lift becomes too steep for the compressor to handle.
 
-**Easy mix-up.** Condenser fouling and reduced condenser-water flow. Split:
-
-| First mover | Case |
-| --- | --- |
-| Flow down, ΔT up, CW-in normal | Reduced condenser-water flow |
-| Approach up, flow and CW-in normal | Condenser fouling (already in pack) |
-| **CW-in up**, flow normal | **This case** |
+**Easy mix-up.** Condenser fouling and reduced flow. Split:
+*   **Reduced Flow:** Flow is down, water ΔT is up, but entering temperature is normal.
+*   **Fouling:** Flow is normal, entering temperature is normal, but pressure is high.
+*   **Fan Failure:** Flow is normal, but **Entering Temperature is high**.

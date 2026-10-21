@@ -1,32 +1,67 @@
 # Inlet guide vanes stuck closed
 
 Primary root cause: **capacity control stuck too far closed** (inlet guide vanes on a centrifugal, or York PRV).  
-The refrigerant charge and the water flows can be healthy. The compressor simply will not swallow the load.
+The refrigerant charge and the water flows are healthy. The compressor simply will not "swallow" the gas it needs to cool the building.
 
 **Evidence:** Taken from the **Trane**, **Carrier**, and **York / JCI** OEM manuals in [`references/`](references/): [`Trane_CVHE-SVU01E-EN_CH530.pdf`](references/Trane_CVHE-SVU01E-EN_CH530.pdf), [`Carrier_19XR_startup.pdf`](references/Carrier_19XR_startup.pdf), [`York_YK_Style_G_160.75.pdf`](references/York_YK_Style_G_160.75.pdf).  
-**Sources:** York YK: high evaporator pressure / high chilled-water temperature — “PRVs fail to open.” Carrier 19XR: check inlet guide vane and diffuser actuator on high discharge temperature; check IGV on low refrigerant temperature. Trane CH530 modulates vanes as the main capacity handle below the speed / current limits.
+**Sources (same trip names in OEM manuals):** York YK: high evaporator pressure / high chilled-water temperature — “PRVs fail to open.” Carrier 19XR: check inlet guide vane and diffuser actuator. Trane CH530 modulates vanes as the main capacity handle.
 
 ---
 
 ## 0. The Healthy State
 
-1. **Vanes are the throttle on the compressor inlet.** At light load they close and reduce mass flow. At heavy load they open so the impeller can move more gas.
-2. **Leaving-water control.** The controller opens vanes until leaving chilled water is at setpoint, unless a current, condenser-pressure, or surge limit holds them back.
-3. **The refrigerant loop is otherwise normal.** Charge, oil, tower water, and chilled-water flow are in band. Lift is the usual 92 → 185 kPa class climb on these packs.
-4. **What “healthy” looks like.** `CH-IGV1-POS` (or the twin `igv_position`) **moves** when load or water temperature moves. Leaving chilled water holds setpoint. The machine is not stuck at a low RLA while the hall warms.
+The chiller uses Inlet Guide Vanes (IGVs) as its primary "throttle" to manage the cooling load.
+
+1. **What are Inlet Guide Vanes (IGVs)?** 
+    *   **Mechanical Flaps:** They are a ring of movable metal blades located at the **intake** of the compressor. They look like a camera shutter or venetian blinds.
+    *   **The Throttle:** By pivoting these blades, the chiller controls exactly how much refrigerant gas the compressor "swallows." 
+    *   **Open (High Load):** The blades turn sideways to allow maximum gas flow.
+    *   **Closed (Low Load):** The blades pivot to block most of the opening, restricting gas flow when the building doesn't need much cooling.
+2. **Capacity Control Logic.** The chiller's computer monitors the **Leaving Chilled Water Temperature**. 
+    *   If the water is too warm, it commands the IGVs to open further.
+    *   If the water is too cold, it commands them to close. 
+    *   In a healthy state, this maintains the building at a steady setpoint (e.g., 7 °C).
+3. **The Refrigerant Loop.** A healthy machine has a full charge (~1150 kg). The compressor "lifts" the gas from the evaporator floor (~92 kPa) to the condenser ceiling (~185 kPa).
+4. **What "healthy" looks like.** 
+    *   **Movement:** The **IGV Position (%)** is dynamic. It moves up and down throughout the day as the building load changes.
+    *   **Stability:** The leaving chilled-water temperature stays locked on its setpoint.
+    *   **Proportional Work:** The compressor's power (kW) and current (RLA%) move in sync with the vane position. If the vanes are 80% open, the motor should be doing significantly more work than at 20% open.
 
 ---
 
-## 1. The Fault
+## 1. The Fault: Stuck Closed
 
-**The knob.** Freeze inlet-guide-vane (or PRV) position at a low opening and hold it. Water boundaries and charge stay at the site day.
+**The knob.** Freeze the IGV position at a low percentage (e.g., 20% open) even as the building load increases. The refrigerant charge and water flows remain perfectly normal.
+
+**Sensors to watch.** The primary signature is a "lazy" machine that refuses to cool despite having plenty of refrigerant and water.
+
+| Sensor | Role | What happens in this fault |
+| --- | --- | --- |
+| IGV Position (Feedback) | The throttle state | **Stuck Low.** Does not open even when the building warms up. |
+| Cooling Capacity (Tons) | Total heat removed | **Flatlines.** The machine cannot move enough gas to meet the load. |
+| Chilled-Water Temp (Out) | The building's comfort | **Rises.** The building gets warmer because the chiller is "choked." |
+| Evaporator Refrigerant Pressure | The **floor** of the climb | **Rises.** The gas is not being "sucked out" fast enough, so it piles up. |
+| Compressor Power / kW | Motor effort | **Stays Low.** The compressor isn't doing much work because it's restricted. |
+| Lift (Condenser - Evaporator) | The hill the compressor climbs | **Shrinks.** The floor (Evaporator) rises toward the ceiling. |
+
+### Understanding Pressure and Lift
+
+To diagnose stuck vanes, you must look at how the "floor" (Evaporator) responds to the "throttle":
+
+*   **Evaporator Refrigerant Pressure:** The "floor." It **rises** because the compressor is "choking" its intake. Gas is boiling off the tubes, but the closed vanes prevent the compressor from sucking it away. The gas piles up in the evaporator.
+*   **Condenser Refrigerant Pressure:** The "ceiling." It stays normal or falls slightly because less heat is being delivered to the condenser.
+*   **Lift:** The physical "climb." The "hill" actually gets **shorter** (because the floor is rising). However, the machine is failing because it isn't moving enough mass, not because the climb is too hard.
+
+**Why this is "Lazy" behavior:** Unlike fouling (where the machine works too hard) or a leak (where the machine starves), stuck vanes make the machine act like it's "sleeping." It draws low power and has low lift, but the building is not getting cold.
 
 **The chain.**
 
-1. **Mass flow is capped.** The impeller is not allowed to take the gas the hall needs. Refrigerant “conveyor belt” stays too slow.
-2. **Capacity will not rise with load.** Leaving chilled-water temperature **rises**. Tons stay low. Power may stay modest — this is not the “harder lift” of fouling. The machine looks lazy, not strained.
-3. **Evaporator can run warmer.** If too little boiling is happening, chilled water is not pulled down. Evaporator pressure may sit high relative to a starved-leak case.
-4. **Surge risk at the wrong map point.** Closed vanes plus a tall lift (hot tower, dirty condenser) is a classic surge corner. York fits hot-gas bypass for “light load or high head.” A stuck-closed vane **is** light compressor flow.
-5. **Trip.** Often **no refrigerant trip** — the hall just misses setpoint. If lift is high, the end is **surge**. York’s other branch: if vanes fail **open**, motor overload / high evaporator pressure. This file is the fail-closed branch only.
+1. **Vanes jam at a low opening.** The "throttle" is stuck in the idle position.
+2. **Building load rises.** The hall gets hotter and sends warmer water to the chiller.
+3. **Evaporator boils more gas.** The warmer water makes the refrigerant boil faster.
+4. **Gas piles up in the evaporator.** Because the vanes are closed, the compressor cannot "swallow" this extra gas. **Evaporator pressure rises**.
+5. **Leaving chilled-water temperature rises.** The machine cannot remove enough heat. The building starts to lose cooling.
+6. **Lift shrinks.** With a rising floor and a steady ceiling, the compressor does very little work. **kW remains low**.
+7. **Trip.** The machine may not trip on a refrigerant fault at all. Instead, it might trigger a **High Chilled-Water Temperature** alarm or eventually **Surge** if the flow gets too low for the current lift.
 
-**Easy mix-up.** Late-stage leak also loses capacity. Leak: charge and subcooling already gone; evaporator pressure **down**; superheat **up**. Stuck vanes: charge still there; vanes do not travel; superheat stays near healthy.
+**Easy mix-up.** Refrigerant leak. Split: A leak makes the evaporator pressure **collapse** (floor drops). Stuck closed vanes make the evaporator pressure **rise** (floor moves up).

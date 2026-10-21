@@ -1,32 +1,63 @@
-# Low oil pressure
+# Low oil pressure — Zero to Hero Guide
 
-Primary root cause: **the lubrication circuit cannot hold differential pressure** — oil pump weak or stopped, filter plugged, oil level low, or oil foaming.  
-This is a bearing-protection trip. It is not a refrigerant leak, even when a leak later steals oil.
-
-**Evidence:** Taken from the **Trane**, **Carrier**, and **York / JCI** OEM manuals in [`references/`](references/): [`Trane_CVHE-SVU01E-EN_CH530.pdf`](references/Trane_CVHE-SVU01E-EN_CH530.pdf), [`Carrier_19XR_startup.pdf`](references/Carrier_19XR_startup.pdf), [`York_YK_Style_G_160.75.pdf`](references/York_YK_Style_G_160.75.pdf).  
-**Sources:** Trane CH530 `LOW OIL PRESSURE` — pump, level, plugged filter, transducer, refrigerant migration / foam. Trane design ΔP **18–22 psid**. Carrier 19XR **228** low oil pressure — pump, level, valves, filters, foaming at start-up; **234** high bearing temperature from the same oil path. York YK: oil pump not running, wrong rotation, VSD, worn pump, blocked inlet; change filter if pump VSD exceeds **55 Hz**.
+Chiller **HT-CH-01**. This guide explains a critical bearing-protection scenario: what happens when the lubrication system fails to protect the high-speed rotating parts of the compressor.
 
 ---
 
-## 0. The Healthy State
+## 0. The Healthy State: How it should work
 
-1. **Oil is a separate loop.** A pump takes oil from the tank, through a filter and cooler, to the bearings, then back to the tank.
-2. **Differential pressure is the health meter.** OEM bands: about **18–25 psid** while running (Trane 18–22; Carrier 18–25; rolling-element Carrier up to 40). That is supply minus the refrigerant pressure the oil is fighting.
-3. **Level and temperature.** Sight glass in band. Sump hot enough that refrigerant is not condensed into the oil (Carrier running sump often 52–66 °C). A heater holds that when stopped.
-4. **What “healthy” looks like.** Oil ΔP is in band as soon as the pre-lube pump has run. Filter is not climbing toward a high pump frequency. Bearings are not hot. The refrigerant cycle can look perfect while this loop is already dying — that is why it needs its own R2F case.
+A centrifugal chiller is a high-speed machine spinning at thousands of RPM. Without a constant film of oil, the metal bearings would melt in seconds. In a healthy state, the oil system is winning a **"Pressure Fight."**
+
+1.  **The Oil Pump's Job:** The oil pump must force oil *into* the compressor bearings. However, these bearings are already sitting inside a chamber filled with high-pressure refrigerant gas.
+2.  **The "Pressure Fight" (Differential Pressure):** To get oil inside, the pump must push **harder** than the refrigerant. This "extra push" is called **Differential Pressure (ΔP)**.
+    *   **The Opponent:** Refrigerant pressure (Discharge Pressure).
+    *   **The Defender:** Oil Pump pressure.
+    *   **The Result (ΔP):** The difference between the two.
+3.  **Healthy Numbers:** A healthy machine maintains a "win" of about **18–25 psid** (pounds per square inch differential). 
+    *   *Example:* If the refrigerant is pushing at 100 psi, the oil pump must push at 120 psi. The **Net Oil Pressure** is 20 psid.
+4.  **Temperature & Level:** The oil must stay warm (~55°C). If it gets too cold, refrigerant dissolves into the oil, making it "thin" and watery, which fails to protect the metal. 
 
 ---
 
-## 1. The Fault
+## 1. The Fault: Lubrication Failure
 
-**The knob.** Degrade oil-pump capacity, plug the filter, or drop oil level, and hold / ramp until ΔP leaves the OEM band.
+**What "Low Oil Pressure" means.** It is not a refrigerant leak. It is a mechanical failure of the support system. It means the "conveyor belt" of oil has slowed down or stopped, leaving the bearings at risk of melting.
 
-**The chain.**
+**Primary Root Causes:**
+*   **Plugged Filter:** Debris blocks the path. The pump pushes, but nothing gets through.
+*   **Weak Pump:** The pump motor is dying and can't create enough "push" (ΔP).
+*   **Oil Foaming:** If the refrigerant boils inside the oil sump, it turns the oil into a "milkshake" of foam. A pump cannot move foam.
+*   **Low Level:** There isn't enough oil to keep the pump primed.
 
-1. **ΔP falls first.** `CH-OIL-DIS-PRES` versus tank / evaporator-referenced pressure shrinks. This is the first symptom. Refrigerant temperatures can still look like yesterday.
-2. **Bearings lose film.** Metal temperature starts to rise (Carrier 234). Vibration can follow. The compressor is still turning — damage is already starting.
-3. **Foam branch (if the cause is refrigerant in the oil).** A sudden low suction pressure (vane slam, leak, stuck-open EXV) boils refrigerant out of the oil. Foam will not pump. ΔP collapses even if the pump motor is fine. Carrier names this at start-up; it can happen any time suction drops.
-4. **Leak branch (optional later pack).** A discharge-gas leak can carry oil out. Then this fault **and** the existing leak family overlap. For a clean first case, keep charge normal and break only the oil circuit.
-5. **Trip.** **Low oil pressure** (Trane, Carrier 228). York will not start, or will stop, without oil pressure. This is a **fast** protect trip compared with a 17-hour gas leak.
+**The "Bearing Death" Chain:**
+1.  **Stage 1: The Pressure Sag.** The ΔP falls out of the safe 18-25 psid band. This is the very first sign of trouble.
+2.  **Stage 2: The Heat-Up.** Without a fresh flow of cool oil, the bearings start to get hot. Metal-on-metal friction begins to create heat that the sensors can pick up.
+3.  **Stage 3: Vibration.** As the oil film disappears, the shaft starts to wobble. Small pulses of vibration become heavy shakes.
+4.  **Stage 4: TRIP.** The chiller's computer sees the low pressure (or high bearing temperature) and shuts down instantly. Unlike a slow leak, this happens in minutes, not hours.
 
-**Easy mix-up.** Gas leak (oil can leave with the gas). First trip of a pure leak on the current pack is **superheat / loss of charge**, not oil ΔP. This scenario’s first trip is oil. Train them as different classes or the model will wait for a refrigerant signature that never comes.
+---
+
+## 8. What happens after the fault (The Timeline)
+
+1.  **00:00:** The oil pump begins to degrade (or the filter starts to block).
+2.  **+1 min:** **Differential Pressure falls.** The oil pump loses its "lead" in the pressure fight. (Keppel Tags: **`CH-OIL-DIS-PRES`** falls closer to **`CH-OIL-TK-PRES`**). This is the "Smoking Gun."
+3.  **+5 min:** **Bearing Temperature rises.** The friction begins. (Keppel Tag: **`CH-OIL-TK-TEMP`** or specific bearing sensors).
+4.  **+8 min:** **Vibration increases.** The machine starts to "growl." (Keppel Tags: **`CH-V-A`**, **`CH-H-A`**).
+5.  **+10 min:** **TRIP.** Safety shutdown to save the shaft and bearings.
+
+---
+
+## 9. The Big Picture
+
+```
+Dedicated Oil Pump  -->  Filter & Cooler  -->  Compressor Bearings
+                               |
+                               v
+                     ONE KNOB: Pump Capacity / Filter Blockage
+                               |
+                               v
+                     83 Keppel Tags (Output)
+                     (Oil ΔP down -> Bearing Temp up -> Vibration up -> TRIP)
+```
+
+**Summary:** This is a "Fast Failure" scenario. While the refrigerant side (pressures and temperatures) might look perfect, the machine is internally destroying itself. The only way to catch this is to watch the **Oil Differential Pressure**.

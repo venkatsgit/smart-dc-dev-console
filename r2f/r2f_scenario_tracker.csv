@@ -1,0 +1,25 @@
+No,Scenario ID,Source,Load Coverage,Status
+1,healthy,RDA Baseline,"80%, 58%",Received
+2,cond_fouling_SL1,ASHRAE RP-1043,"80%, 58%",Received
+3,cond_fouling_SL2,ASHRAE RP-1043,"80%, 58%",Received
+4,cond_fouling_SL3,ASHRAE RP-1043,"80%, 58%",Received
+5,cond_fouling_SL4,ASHRAE RP-1043,"80%, 58%",Received
+6,evap_fouling_SL1,ASHRAE RP-1043,"80%, 58%",Received
+7,evap_fouling_SL2,ASHRAE RP-1043,"80%, 58%",Received
+8,evap_fouling_SL3,ASHRAE RP-1043,"80%, 58%",Received
+9,evap_fouling_SL4,ASHRAE RP-1043,"80%, 58%",Received
+10,leak_gas_slow,ASHRAE RP-1043,"80%, 58%",Received
+11,leak_gas_moderate,ASHRAE RP-1043,"80%, 58%",Received
+12,leak_liquid_slow,ASHRAE RP-1043,"80%, 58%",Received
+13,leak_liquid_moderate,ASHRAE RP-1043,"80%, 58%",Received
+14,reduced_condenser_water_flow,ASHRAE RP-1043,"80%, 58%",Pending
+15,reduced_evaporator_water_flow,ASHRAE RP-1043,"80%, 58%",Pending
+16,refrigerant_overcharge,ASHRAE RP-1043,"80%, 58%",Pending
+17,noncondensable_gas,ASHRAE RP-1043,"80%, 58%",Pending
+18,excess_oil,ASHRAE RP-1043,"80%, 58%",Pending
+19,expansion_valve_stuck_closed,Carrier / OEM,"80%, 58%",Pending
+20,expansion_valve_stuck_open,Carrier / OEM,"80%, 58%",Pending
+21,igv_stuck_closed,Carrier / OEM,"80%, 58%",Pending
+22,cooling_tower_fan_failed,Carrier / OEM,"80%, 58%",Pending
+23,low_oil_pressure,Carrier / OEM,"80%, 58%",Pending
+24,compressor_surge,Carrier / OEM,"80%, 58%",Pending

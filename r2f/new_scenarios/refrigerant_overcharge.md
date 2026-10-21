@@ -1,32 +1,58 @@
 # Refrigerant overcharge
 
 Primary root cause: **too much refrigerant was charged into the closed loop.**  
-This is the opposite of the gas and liquid leaks already in the pack.
+This is the physical opposite of the gas and liquid leaks already in the current pack.
 
 **Evidence:** From **ASHRAE RP-1043** (fault RO, +10/+20/+30/+40% extra charge). Official report is sold; local open evidence: [`references/ASHRAE_RP-1043_evidence_JSTAGE_AIUE_2019.pdf`](references/ASHRAE_RP-1043_evidence_JSTAGE_AIUE_2019.pdf).  
-**Sources (same trip names in OEM manuals):** Trane high discharge warning: high subcooling with high head indicates overcharge or non-condensables. Carrier 19XR high condenser pressure list (with fouling / flow / air). York high discharge with air or dirty tubes — overcharge sits in the same high-head family.
+**Sources (same trip names in OEM manuals):** Trane high discharge warning: high subcooling with high head indicates overcharge or non-condensables. Carrier 19XR high condenser pressure list (with fouling / flow / air). York YK high discharge with air or dirty tubes — overcharge sits in the same high-head family.
 
 ---
 
 ## 0. The Healthy State
 
-1. **A fixed charge.** The machine is a closed loop. On the current HT-CH-01 packs that mass is about **1150 kg**. Most of it sits as liquid in the evaporator so the tubes stay wet. A smaller pool sits in the condenser.
-2. **Subcooling is the condenser-pool thermometer.** After the gas turns back into liquid, that liquid is cooled a few degrees below its boiling point. Healthy subcooling is about **4–5 °C**. It exists because there is enough — not too much — liquid sitting in the condenser.
-3. **The compressor climb.** Gas is lifted from about 92 kPa to about 185 kPa. Power is the cost of that climb at the circulating flow (about 20 kg/s on those packs).
-4. **What “healthy” looks like.** Charge is at the nameplate fill. Subcooling is a few degrees, not double. Condenser pressure is normal for the tower water of that day. The expansion valve is not fighting a flooded high side.
+The chiller is a closed loop with a fixed mass of refrigerant (approx. **1150 kg** for the HT-CH-01 twin).
+
+1. **The Two Pools.** Refrigerant is stored in two liquid pools:
+    *   **Evaporator Pool:** Large (~810 kg). Must cover the tubes so they can boil refrigerant and cool the building.
+    *   **Condenser Pool:** Smaller (~270 kg). Acts as a "seal" and allows for extra cooling of the liquid.
+2. **Subcooling (The "Liquid Coldness").** After gas turns back into liquid in the condenser, it stays in contact with the cool tower water and drops a few degrees below its boiling point. This is **subcooling** (Healthy = **4–5 °C**).
+3. **Lift (The Climb).** The compressor lifts gas from the evaporator "floor" (~92 kPa) to the condenser "ceiling" (~185 kPa). Power consumption depends on the height of this climb.
+4. **What "healthy" looks like.** Refrigerant mass is at nameplate design. Subcooling is steady. Condenser pressure follows the tower water temperature. The expansion valve meters liquid back to the evaporator at the same rate the compressor sends gas up.
 
 ---
 
-## 1. The Fault
+## 1. The Fault: Overcharge
 
-**The knob.** Add refrigerant mass above the design charge (ASHRAE steps +10% to +40%) and hold it. There is no hole. Kilograms do **not** fall.
+**The knob.** Inject extra refrigerant mass into the system (ASHRAE steps: 10%, 20%, 30%, 40% above design). There is no leak; the total kilograms in the machine **increase**.
+
+**Sensors to watch.** Subcooling is the primary diagnostic signature that separates this from a leak.
+
+| Sensor | Role | What happens in this fault |
+| --- | --- | --- |
+| Refrigerant Mass | The knob | **Increases.** More kilograms are in the loop. |
+| Subcooling | The "pool depth" indicator | **Rises.** A deeper pool in the condenser gets extra cooling. |
+| Condenser Refrigerant Pressure | The **ceiling** of the climb | **Rises.** Excess liquid blocks the gas from condensing. |
+| Evaporator Refrigerant Pressure | The **floor** of the climb | Stays near normal at first. |
+| Lift (Condenser - Evaporator) | The hill the compressor climbs | **Grows** because the ceiling rises. |
+| Compressor Power / kW | Cost of that hill | **Rises** with lift. |
+
+### Understanding Pressure and Lift
+
+To diagnose overcharge, you must look at why the "ceiling" is moving:
+
+*   **Evaporator Refrigerant Pressure:** The "floor." In overcharge, the evaporator tubes are fully submerged, so the floor stays healthy and stable.
+*   **Condenser Refrigerant Pressure:** The "ceiling." It rises because the extra liquid refrigerant floods the condenser tubes, leaving less room for the hot gas to turn back into liquid. The pressure builds up as a result.
+*   **Lift:** The physical "climb." Since the floor is stable but the ceiling is rising, the compressor has to work much harder to push gas into the flooded condenser.
+
+**Why Subcooling is the "Smoking Gun":** In a **leak**, subcooling **falls** because the condenser pool is empty. In **overcharge**, subcooling **rises** because the condenser pool is too deep. This single sensor tells you if the machine is "starving" or "choking."
 
 **The chain.**
 
-1. **The condenser pool grows.** Extra liquid has to sit somewhere. It stacks in the condenser. The pool gets deeper.
-2. **Subcooling rises — the opposite of a leak.** A deeper pool can be cooled farther below boiling. **Subcooling goes up.** On a leak, subcooling is the first thing that **falls**. That single direction splits the two families.
-3. **Less useful condenser surface for gas.** Liquid occupies tube area that should be condensing vapour. Effective condensing area shrinks. Condenser pressure and temperature rise.
-4. **Harder lift, more power.** The ceiling of the climb is higher. Compressor power and kW/ton rise. The machine still cools, often for a long time.
-5. **Trip.** Typical end is **high condenser / discharge pressure**, the same cutout fouling and low condenser-water flow use. Trane’s diagnostic note: high subcooling **plus** high head points to overcharge (or air), not to a leak.
+1. **Extra mass enters.** The liquid pool in the condenser begins to stack up.
+2. **Subcooling rises.** The deep pool of liquid refrigerant is cooled significantly by the tower water. Subcooling moves from 5 °C toward 10 °C or higher.
+3. **Condensing area shrinks.** Liquid occupies the tube space that was meant for gas. The "condensing capacity" drops.
+4. **Condenser pressure rises.** Because the gas has less room to condense, it stays as a high-pressure vapour longer. The **ceiling moves up**.
+5. **Lift grows.** With a normal floor (Evaporator) and a rising ceiling (Condenser), the compressor work increases. **kW and kW/ton rise**.
+6. **Trip.** The machine hits the **High Condenser (Discharge) Pressure** limit (Trane HPCO, Carrier 235).
 
-**Easy mix-up.** A leak also changes charge and later trips. Leak: mass and subcooling **down**. Overcharge: mass and subcooling **up**.
+**Easy mix-up.** Condenser fouling also raises pressure and power. However, **fouling does not raise subcooling** (it usually lowers it slightly as heat transfer fails). Only overcharge or non-condensables (air) will show the "High Pressure + High Subcooling" signature.
