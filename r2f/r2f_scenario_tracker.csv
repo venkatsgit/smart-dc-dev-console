@@ -1,25 +1,17 @@
-No,Scenario ID,Source,Load Coverage,Status
-1,healthy,RDA Baseline,"80%, 58%",Received
-2,cond_fouling_SL1,ASHRAE RP-1043,"80%, 58%",Received
-3,cond_fouling_SL2,ASHRAE RP-1043,"80%, 58%",Received
-4,cond_fouling_SL3,ASHRAE RP-1043,"80%, 58%",Received
-5,cond_fouling_SL4,ASHRAE RP-1043,"80%, 58%",Received
-6,evap_fouling_SL1,ASHRAE RP-1043,"80%, 58%",Received
-7,evap_fouling_SL2,ASHRAE RP-1043,"80%, 58%",Received
-8,evap_fouling_SL3,ASHRAE RP-1043,"80%, 58%",Received
-9,evap_fouling_SL4,ASHRAE RP-1043,"80%, 58%",Received
-10,leak_gas_slow,ASHRAE RP-1043,"80%, 58%",Received
-11,leak_gas_moderate,ASHRAE RP-1043,"80%, 58%",Received
-12,leak_liquid_slow,ASHRAE RP-1043,"80%, 58%",Received
-13,leak_liquid_moderate,ASHRAE RP-1043,"80%, 58%",Received
-14,reduced_condenser_water_flow,ASHRAE RP-1043,"80%, 58%",Pending
-15,reduced_evaporator_water_flow,ASHRAE RP-1043,"80%, 58%",Pending
-16,refrigerant_overcharge,ASHRAE RP-1043,"80%, 58%",Pending
-17,noncondensable_gas,ASHRAE RP-1043,"80%, 58%",Pending
-18,excess_oil,ASHRAE RP-1043,"80%, 58%",Pending
-19,expansion_valve_stuck_closed,Carrier / OEM,"80%, 58%",Pending
-20,expansion_valve_stuck_open,Carrier / OEM,"80%, 58%",Pending
-21,igv_stuck_closed,Carrier / OEM,"80%, 58%",Pending
-22,cooling_tower_fan_failed,Carrier / OEM,"80%, 58%",Pending
-23,low_oil_pressure,Carrier / OEM,"80%, 58%",Pending
-24,compressor_surge,Carrier / OEM,"80%, 58%",Pending
+No,Scenario ID,Source,Root Cause,Final Stage,Chain Effect,Status
+1,healthy,RDA Baseline,Normal operation baseline.,N/A,Baseline performance at 80% and 58% load.,Received
+2,condenser_fouling,ASHRAE RP-1043,Scale buildup on water tubes (SL1-SL4).,Performance Degradation,Reduced heat transfer efficiency; approach temperature widens.,Received
+3,evaporator_fouling,ASHRAE RP-1043,Scale buildup on chilled water tubes (SL1-SL4).,Performance Degradation,Reduced cooling capacity; evaporator approach widens.,Received
+4,refrigerant_gas_leak,ASHRAE RP-1043,Discharge-side gas leak (Slow/Moderate).,High Superheat Trip,Starvation of evaporator; loss of subcooling; eventual thermal trip.,Received
+5,refrigerant_liquid_leak,ASHRAE RP-1043,High-side liquid line leak (Slow/Moderate).,High Superheat Trip,Rapid loss of charge; pressure collapse; protection trip.,Received
+6,reduced_condenser_water_flow,ASHRAE RP-1043,Pump degradation or valve blockage.,High Condenser Pressure,Water flow falls; head pressure rises as heat cannot be rejected.,Pending
+7,reduced_evaporator_water_flow,ASHRAE RP-1043,CHW pump failure or strainer clog.,Low Evap Pressure / Freeze,Flow drops; refrigerant over-cools stagnant water; freeze risk.,Pending
+8,refrigerant_overcharge,ASHRAE RP-1043,Maintenance error (too much gas added).,High Condenser Pressure,Excess liquid stacks in condenser; subcooling rises; head pressure climbs.,Pending
+9,noncondensable_gas,ASHRAE RP-1043,Air/moisture leaked into the low side.,High Condenser Pressure,Air "blanket" in condenser blocks refrigerant; high head pressure.,Pending
+10,excess_oil,ASHRAE RP-1043,Oil migration from sump to tubes.,Capacity Loss,Oil coats evaporator tubes creating a thermal barrier; capacity falls.,Pending
+11,expansion_valve_stuck_closed,OEM (Carrier/Trane/York/Daikin),Expansion valve motor/linkage failure.,High Superheat Trip,Refrigerant piles in condenser; evaporator starved; superheat spikes.,Pending
+12,expansion_valve_stuck_open,OEM (Carrier/Trane/York/Daikin),Expansion valve failure (full open).,Compressor Slugging,Liquid floods evaporator and enters compressor suction; risk of damage.,Pending
+13,igv_stuck_closed,OEM (Carrier/Trane/York/Daikin),Inlet Guide Vane actuator failure.,Capacity Shortfall / Surge,Throttle stuck at idle; chiller cannot ramp up; surge risk.,Pending
+14,cooling_tower_fan_failed,OEM (Carrier/Trane/York/Daikin),Tower fan motor or belt failure.,High Entering CW Temp,Returning tower water gets hotter; condenser pressure forced up.,Pending
+15,low_oil_pressure,OEM (Carrier/Trane/York/Daikin),Oil pump failure or plugged filter.,Low Oil ΔP Trip,Pump loses pressure fight; oil film lost; machine trips to save bearings.,Pending
+16,compressor_surge,OEM (Carrier/Trane/York/Daikin),High Lift vs. Low Flow imbalance.,Surge Trip (Vibration),Flow reverses through impeller; violent vibration and power pulses.,Pending
