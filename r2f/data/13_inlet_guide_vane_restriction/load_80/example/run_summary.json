@@ -1,0 +1,38 @@
+{
+  "run_id": "80_igv_0.9_anomaly",
+  "anomaly_number": 13,
+  "load_percent": 80,
+  "normal_reference": "80_igv_0.9_normal",
+  "cohort": "20261031_audited",
+  "folder": "data/13_inlet_guide_vane_restriction/load_80/example",
+  "physics_revision": "physics-4b77d56cbf86691eae1f",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 120.0,
+  "requested_evaluation_s": 600.0,
+  "truth_rows": 360,
+  "native_rows": 360,
+  "BMS_rows": 12,
+  "last_truth_time_s": 719.249,
+  "last_BMS_time_s": 660.0,
+  "BMS_rows_strictly_after_onset": 9,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "f93d57f1846f09637bbbc42c7f9dec75b0d798c510cfdfbc5ddac09f7cc68c70",
+    "bms.csv": "337cc4287cfbeefd71e87fbe11e6f4aa61c7ed16ab0e264389ac7dc97ee9b5d5",
+    "native_sensors.csv": "ad1d486e0247349bf4a03524925f4fcafd9eecb98f60ac9a1bdce198e0d5ff30",
+    "source_manifest.json": "d45f80061332447a420e544018efdc2c97ee150ce5c321001dd60336ef4cd229"
+  },
+  "files": [
+    "data/13_inlet_guide_vane_restriction/load_80/example/bms.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/native_sensors.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/truth.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/source_manifest.json",
+    "data/13_inlet_guide_vane_restriction/load_80/example/truth_labels.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/bms_labels.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/usage_mask.csv",
+    "data/13_inlet_guide_vane_restriction/load_80/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_80/normal_igv_reference"
+}

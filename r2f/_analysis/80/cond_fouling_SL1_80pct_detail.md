@@ -23,18 +23,18 @@ Before looking at the fault, we must understand the "Normal Day" (21 August). A 
 
 ## 1. The Fault: Condenser Fouling (Scale)
 
-**What "Fouling" means.** Over time, minerals in the tower water can build up a thin crust of "scale" (like the white stuff in a kettle) inside the condenser tubes. This crust acts like a **thermal insulator**.
+**What "Fouling" means.** Over time, minerals in the tower water can build up a thin crust of "scale" inside the condenser tubes. This crust acts like a **thermal insulator**.
 
-**What SL1 means.** SL stands for **Severity Level**. Level 1 is the mildest possible fault. In this file, **12 percent** of the condenser tube surface is treated as "lost" or blocked by this scale. It’s not enough to stop the machine, but it makes it "sick."
+**What this scenario actually does.** In the `example` data, the machine has **Severity Level 2 (SL2)** fouling. This means **20 percent** of the condenser tube conductance (`cond_UA_W_K`) is lost.
 
 **The "Inefficiency" Chain (How it hurts):**
-1.  **Stage 1: Insulation (Midnight).** 12% of the tube surface is now covered in scale. Heat can no longer cross the metal wall easily.
+1.  **Stage 1: Insulation.** 20% of the tube's ability to move heat is gone. Heat can no longer cross the metal wall easily.
 2.  **Stage 2: Heat Backup.** Because heat is "trapped" in the refrigerant, the gas stays hotter than it should.
-3.  **Stage 3: Pressure Rise.** In a closed loop, hotter gas = **higher pressure**. 
-4.  **Stage 4: Compressor Strain.** The compressor now has to "pedal" against a higher pressure. It’s like a cyclist hitting a headwind—the bike still moves, but it takes more energy. **Power (`CH-KW_A`) rises** to compensate.
+3.  **Stage 3: Pressure Rise.** In a closed loop, hotter gas = **higher pressure**. **Refrigerant Pressure (`CH-CON-RFT-PRES`) rises**.
+4.  **Stage 4: Compressor Strain.** The compressor now has to "pedal" against a higher pressure. **Power (`CH-KW_A`) rises** to compensate.
 5.  **Outcome:** The machine doesn't trip. It keeps the building cold. But it uses more electricity every minute to do it.
 
-**How it is applied.** At midnight on 22 August, the simulation jumps to this 12% dirt level and **holds it constant**. It is a "Step Fault"—it doesn't get dirtier as the day goes on; it stays exactly 12% sick for 24 hours.
+**How it is applied.** At midnight on 22 August, the simulation jumps to this 20% dirt level and **holds it constant**. It is a "Step Fault"—it doesn't get dirtier as the day goes on; it stays exactly 20% sick for 24 hours.
 
 ---
 
@@ -44,7 +44,7 @@ Before looking at the fault, we must understand the "Normal Day" (21 August). A 
 
 **The Result:** You get a spreadsheet (`sensors.csv`) with 48 hours of data:
 *   **Day 1 (21 Aug):** The "Clean" day. The twin simulates how the machine *should* have behaved.
-*   **Day 2 (22 Aug):** The "Dirty" day. The twin simulates how the machine *actually* behaves with 12% fouling.
+*   **Day 2 (22 Aug):** The "Dirty" day. The twin simulates how the machine *actually* behaves with 20% fouling.
 
 Both days follow the same building load and water patterns, so any difference you see is caused **only** by the fouling.
 

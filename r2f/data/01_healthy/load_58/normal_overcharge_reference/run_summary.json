@@ -1,0 +1,30 @@
+{
+  "run_id": "58_existing_overcharge_0_dt5_d1800",
+  "anomaly_number": 1,
+  "load_percent": 58,
+  "normal_reference": "58_existing_overcharge_0_dt5_d1800",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_overcharge_reference",
+  "folder": "data/01_healthy/load_58/normal_overcharge_reference",
+  "cohort": "20261101_inventory_v2",
+  "physics_revision": "physics-f1d2b8b410a54e0417cd",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 0,
+  "requested_evaluation_s": 1800,
+  "truth_rows": 361,
+  "native_rows": 361,
+  "BMS_rows": 31,
+  "last_truth_time_s": 1800.0,
+  "last_BMS_time_s": 1800.0,
+  "BMS_rows_strictly_after_onset": 30,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "existing_excess_charge_fraction": 0,
+  "fault_present_from_first_row": false,
+  "source_file_sha256": {
+    "bms.csv": "2cbaa8ad19cd4f78755745920c485b558732ca1468bc37e2e5d189fda224686c",
+    "native_sensors.csv": "41f73d8e4494560f05b3a84d27d9a52c9f8de2fac12cf7ffce098ed56961b249",
+    "truth.csv": "d2167b88dca9b0e007c735ba36f35ac656f31a20bdf48303d9ce7a23dd9df557",
+    "source_manifest.json": "2da9032b2ce83b167e19a8a085cabfba1b154faf97a2e5c33fc538702d7f2fd7"
+  },
+  "comparison_scope": "Same equations, water boundaries, zone parameters and recording; different pre-existing total charge. No healthy prefix."
+}

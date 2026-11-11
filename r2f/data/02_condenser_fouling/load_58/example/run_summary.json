@@ -1,0 +1,38 @@
+{
+  "run_id": "58_condenser_fouling",
+  "anomaly_number": 2,
+  "load_percent": 58,
+  "normal_reference": "58_healthy",
+  "cohort": "20261031_audited",
+  "folder": "data/02_condenser_fouling/load_58/example",
+  "physics_revision": "physics-4b77d56cbf86691eae1f",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 1080.0,
+  "requested_evaluation_s": 10800.0,
+  "truth_rows": 396,
+  "native_rows": 396,
+  "BMS_rows": 198,
+  "last_truth_time_s": 11850.996,
+  "last_BMS_time_s": 11820.0,
+  "BMS_rows_strictly_after_onset": 179,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "e9fbc48e990ac8b2fc47f1c5bb1933548fa7f41b79a54d87c99a33674cefb8d4",
+    "bms.csv": "92ce5d5cd670c5513353387126469ee57b4b8587d824b2f0b8d64f72b3277e61",
+    "native_sensors.csv": "bf41724263af3325583c3e959cfd32bbe1b027a6b3ffe460647341624ed04d6b",
+    "source_manifest.json": "0ce0d7671ee1ddf4b37d3804c7cac0b0cad2f1c7b7ee4e550c26570958bbd212"
+  },
+  "files": [
+    "data/02_condenser_fouling/load_58/example/bms.csv",
+    "data/02_condenser_fouling/load_58/example/native_sensors.csv",
+    "data/02_condenser_fouling/load_58/example/truth.csv",
+    "data/02_condenser_fouling/load_58/example/source_manifest.json",
+    "data/02_condenser_fouling/load_58/example/truth_labels.csv",
+    "data/02_condenser_fouling/load_58/example/bms_labels.csv",
+    "data/02_condenser_fouling/load_58/example/usage_mask.csv",
+    "data/02_condenser_fouling/load_58/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_long_window"
+}

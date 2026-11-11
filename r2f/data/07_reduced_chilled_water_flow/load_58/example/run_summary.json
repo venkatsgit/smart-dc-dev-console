@@ -1,0 +1,38 @@
+{
+  "run_id": "58_reduced_evaporator_water_flow",
+  "anomaly_number": 7,
+  "load_percent": 58,
+  "normal_reference": "58_healthy",
+  "cohort": "20261031_audited",
+  "folder": "data/07_reduced_chilled_water_flow/load_58/example",
+  "physics_revision": "physics-4b77d56cbf86691eae1f",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 1080.0,
+  "requested_evaluation_s": 10800.0,
+  "truth_rows": 396,
+  "native_rows": 396,
+  "BMS_rows": 198,
+  "last_truth_time_s": 11859.487,
+  "last_BMS_time_s": 11820.0,
+  "BMS_rows_strictly_after_onset": 179,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "7473ec816df592cb017d5f8c3db16cea605545eb79e7b11dca469083c027de92",
+    "bms.csv": "01637e89449100f5a3c681c116aeb1de1d30bb28a504bdd17775ad61d4a6760f",
+    "native_sensors.csv": "c6429cc5e074a2d42612b263046dfb9550e6b7c24f68f468c1c4dffc109c6fef",
+    "source_manifest.json": "b5c0652d1cea7bcb707f51a6752da8a5eaae92eb73919dd15dfe09a0a91fb333"
+  },
+  "files": [
+    "data/07_reduced_chilled_water_flow/load_58/example/bms.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/native_sensors.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/truth.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/source_manifest.json",
+    "data/07_reduced_chilled_water_flow/load_58/example/truth_labels.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/bms_labels.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/usage_mask.csv",
+    "data/07_reduced_chilled_water_flow/load_58/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_long_window"
+}

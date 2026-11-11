@@ -30,23 +30,23 @@ Before the leak, we must understand the "Normal Day" (21 August). A healthy chil
 
 ## 1. The Fault: A High-Side Gas Leak
 
-**What "Moderate" means.** This is a leak rate. "Moderate" is sized so that the machine loses about **5 percent of its total mass every hour**. It’s like a slow puncture in a tire—the machine still runs for hours, but it is slowly "starving."
+**What "Moderate" means.** This is a leak rate. "Moderate" is sized so that the machine loses about **5 percent of its total mass (~57 kg) every hour**. It’s like a slow puncture in a tire—the machine still runs for hours, but it is slowly "starving."
 
 **What this file actually does.** At midnight on 22 August, a hole opens on the **discharge side** (the pipe carrying hot gas from the compressor to the condenser). 
-*   **The Knob:** The simulation opens the `vapour_leak_area`.
+*   **The Knob:** The simulation opens the `vapour_leak_area` to a final equivalent orifice of ~60 mm².
 *   **Why Gas Leaks are "Sneaky":** Because gas is 30x less dense than liquid, the machine loses mass much slower than a liquid leak. This makes it harder for operators to notice until it's too late.
 
 **The "Starvation" Chain (How the machine dies):**
 1.  **Stage 1: The Condenser Pool Drains (0-4 hours).** The leak vents gas from the high side. The first thing to suffer is the **Condenser Pool**. This pool is the "storage tank" that feeds the evaporator. As it drains:
     *   **Subcooling falls to zero:** Without a deep pool, the liquid cannot be extra-cooled. The liquid going back to the evaporator is now "relatively hotter," which makes it boil faster and starves the system even more.
     *   **Supply Line Sags:** With the pool empty, the machine can't send enough liquid refrigerant back to the evaporator.
-2.  **Stage 2: The Lift Paradox (4-11 hours).** You might think that if the condenser leaks, the pressure drops and the compressor’s job gets "easier." **This is a trap.** While the condenser pressure (the "ceiling") sags a little, the evaporator pressure (the "floor") collapses much faster because it is empty. 
+2.  **Stage 2: The Lift Paradox (4-11 hours).** You might think that if the condenser leaks, the pressure drops and the compressor’s job gets "easier." **This is a trap.** While the condenser pressure (the "ceiling") sags a little, the evaporator pressure (the "floor") collapses much faster because it is empty (**Tag: `CH-EVA-RFT-PRES`**). 
     *   **Result:** The "hill" the compressor has to climb (the **Pressure Lift**) actually gets **steeper**. 
-    *   **Power and Current rise** (+43 kW peak) because the compressor is working harder to "suck" what little gas is left from a starved evaporator and push it into a still-high-pressure condenser.
+    *   **Power and Current rise** (+43 kW peak on **Tag: `CH-KW_A`**) because the compressor is working harder to "suck" what little gas is left from a starved evaporator and push it into a still-high-pressure condenser.
 3.  **Stage 3: The Evaporator Tubes Go Dry (11-14 hours).** The condenser pool is gone. Now the **Evaporator Pool** starts to empty. The liquid level drops until the copper tubes are no longer submerged. 
 4.  **Stage 4: Overheating (Superheat).** Refrigerant is supposed to boil *on* the tubes. Now, gas flows past *dry* tubes and picks up massive amounts of heat from the building water. This is **Superheat**. Instead of a healthy 1°C, it climbs toward 25°C.
-5.  **Stage 5: Flow Collapse (14-17 hours).** Once the evaporator is mostly dry, there is no liquid left to boil. The compressor has no gas left to suck. The "conveyor belt" of refrigerant slows down—falling from 20 kg/s to about **8 kg/s**. Cooling capacity collapses.
-6.  **Stage 6: TRIP (17.6 hours).** The safety system sees the "bone-dry" evaporator (High Superheat) and shuts the chiller down to prevent the compressor from burning out.
+5.  **Stage 5: Flow Collapse (14-17 hours).** Once the evaporator is mostly dry, there is no liquid left to boil. The compressor has no gas left to suck. The "conveyor belt" of refrigerant slows down—falling from 20 kg/s to about **8 kg/s**. Cooling capacity (**Tag: `CH-CHW-RTON`**) collapses.
+6.  **Stage 6: TRIP (17.6 hours).** The safety system sees the "bone-dry" evaporator (High Superheat above 25 K for 5 minutes) and shuts the chiller down to prevent the compressor from burning out.
 
 ---
 
@@ -58,7 +58,7 @@ Before the leak, we must understand the "Normal Day" (21 August). A healthy chil
 *   **Day 1 (21 Aug):** A perfectly healthy day.
 *   **Day 2 (22 Aug):** The "Run-to-Failure." The hole opens at midnight, and the data **stops at trip (~17:36)**. 
 
-Unlike fouling, this pack **ends with a dead machine**.
+Unlike fouling, this pack **ends with a dead machine**. By the terminal event, the machine has lost nearly **1000 kg** of its original **1150 kg** charge.
 
 ---
 

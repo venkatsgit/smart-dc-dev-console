@@ -1,0 +1,38 @@
+{
+  "run_id": "58_normal_1_r0_b120_d600_dt0.5_guard0.1",
+  "anomaly_number": 1,
+  "load_percent": 58,
+  "normal_reference": "58_normal_1_r0_b120_d600_dt0.5_guard0.1",
+  "cohort": "20261101_long_faults",
+  "folder": "data/01_healthy/load_58/normal_feed_reference",
+  "physics_revision": "physics-f4a0642bfdaafe870e76",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 120.0,
+  "requested_evaluation_s": 600.0,
+  "truth_rows": 721,
+  "native_rows": 721,
+  "BMS_rows": 13,
+  "last_truth_time_s": 720.0,
+  "last_BMS_time_s": 720.0,
+  "BMS_rows_strictly_after_onset": 10,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "34c46b9b5a073b5da40a331becef0854955900ae4d669bf5c32bf6a0955baf5e",
+    "bms.csv": "ae93c06b5128f7493560f1958c211e7b7a91aab0350fdfe238191e1e315f2823",
+    "native_sensors.csv": "7c4e8e44ad883f6377c85dd642d0adb65b2ac6897037435a32f8a894e5400341",
+    "source_manifest.json": "1f080fe5b07aa5db9cd116db09bccf3a7c47cdaf068ece5124b671b49325c101"
+  },
+  "files": [
+    "data/01_healthy/load_58/normal_feed_reference/bms.csv",
+    "data/01_healthy/load_58/normal_feed_reference/native_sensors.csv",
+    "data/01_healthy/load_58/normal_feed_reference/truth.csv",
+    "data/01_healthy/load_58/normal_feed_reference/source_manifest.json",
+    "data/01_healthy/load_58/normal_feed_reference/truth_labels.csv",
+    "data/01_healthy/load_58/normal_feed_reference/bms_labels.csv",
+    "data/01_healthy/load_58/normal_feed_reference/usage_mask.csv",
+    "data/01_healthy/load_58/normal_feed_reference/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_feed_reference"
+}

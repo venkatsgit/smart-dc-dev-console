@@ -1,0 +1,13 @@
+Event time,time_s,scenario_time_s,scenario_anomaly_number,intervention_active,model_surge_occurring,equipment_running,cause_label,data_use_scope
+2025-01-17T00:00:00.000000+0000,0.0,0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:01:00.000000+0000,60.0,0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:02:00.000000+0000,120.0,0.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:03:00.000000+0000,180.0,60.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:04:00.000000+0000,240.0,120.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:05:00.000000+0000,300.0,180.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:06:00.000000+0000,360.0,240.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:07:00.000000+0000,420.0,300.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:08:00.000000+0000,480.0,360.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:09:00.000000+0000,540.0,420.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:10:00.000000+0000,600.0,480.0,1,0,0,1,healthy,healthy_reference
+2025-01-17T00:11:00.000000+0000,660.0,540.0,1,0,0,1,healthy,healthy_reference

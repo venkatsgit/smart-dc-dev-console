@@ -1,0 +1,49 @@
+{
+  "run_id": "58_exv_1_r0_b120_d600_dt0.5_guard0.1",
+  "anomaly_number": 11,
+  "load_percent": 58,
+  "normal_reference": "58_normal_1_r0_b120_d600_dt0.5_guard0.1",
+  "cohort": "20261101_long_faults",
+  "folder": "data/11_refrigerant_feed_interruption/load_58/example",
+  "physics_revision": "physics-f4a0642bfdaafe870e76",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 120.0,
+  "requested_evaluation_s": 600.0,
+  "truth_rows": 721,
+  "native_rows": 721,
+  "BMS_rows": 13,
+  "last_truth_time_s": 720.0,
+  "last_BMS_time_s": 720.0,
+  "BMS_rows_strictly_after_onset": 10,
+  "terminal_event": {
+    "time_s": 171.0,
+    "kind": "protection",
+    "asset": "HT-CH-01",
+    "name": "assumed_low_evaporator_level",
+    "action": "trip",
+    "signal": "evap_level_fraction",
+    "value": 0.09944559547930122,
+    "limit": 0.1,
+    "reason": "Exploratory low-level shutdown assumption, not an OEM setting",
+    "scenario_time_s": 51.0
+  },
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "2916b2d86c7cb11683d0421121e8c2bc012ddc0257d97373c3d7c3cf50cafccb",
+    "bms.csv": "6d4bc9935c0ad137181d05ad786f075a2e2715881f8a3200308e05f42bc8db88",
+    "native_sensors.csv": "9b56d993994404d79c79791fac8edeeb1df13bc35e72777da2866f7fee4f8744",
+    "source_manifest.json": "522825e85ea1e8d6b20009811c9c8b36348ce277f4d5859caa8c41beb72ad66d"
+  },
+  "files": [
+    "data/11_refrigerant_feed_interruption/load_58/example/bms.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/native_sensors.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/truth.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/source_manifest.json",
+    "data/11_refrigerant_feed_interruption/load_58/example/truth_labels.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/bms_labels.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/usage_mask.csv",
+    "data/11_refrigerant_feed_interruption/load_58/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_feed_reference"
+}

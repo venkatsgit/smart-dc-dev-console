@@ -1,0 +1,38 @@
+{
+  "run_id": "80_noncondensable_gas",
+  "anomaly_number": 9,
+  "load_percent": 80,
+  "normal_reference": "80_healthy",
+  "cohort": "20261031_audited",
+  "folder": "data/09_noncondensable_gas/load_80/example",
+  "physics_revision": "physics-4b77d56cbf86691eae1f",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 1080.0,
+  "requested_evaluation_s": 10800.0,
+  "truth_rows": 396,
+  "native_rows": 396,
+  "BMS_rows": 198,
+  "last_truth_time_s": 11853.706,
+  "last_BMS_time_s": 11820.0,
+  "BMS_rows_strictly_after_onset": 179,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "3399188e146939a434d8dc1fc824940f65ac0854d3fb9287fdb219b217a972b8",
+    "bms.csv": "c7cd357251bdff470ae1a0d79580d8fb3feae25b6f5dc482f87ab0c29360ffaf",
+    "native_sensors.csv": "fd0f618b0c25579758410cea34987ef61e6ae5389e1292c4e3cbdf56ba7a804f",
+    "source_manifest.json": "3bb0b41692e72dc2adfb565463cb8712e33fc5254b3295c7479af463b8ab9898"
+  },
+  "files": [
+    "data/09_noncondensable_gas/load_80/example/bms.csv",
+    "data/09_noncondensable_gas/load_80/example/native_sensors.csv",
+    "data/09_noncondensable_gas/load_80/example/truth.csv",
+    "data/09_noncondensable_gas/load_80/example/source_manifest.json",
+    "data/09_noncondensable_gas/load_80/example/truth_labels.csv",
+    "data/09_noncondensable_gas/load_80/example/bms_labels.csv",
+    "data/09_noncondensable_gas/load_80/example/usage_mask.csv",
+    "data/09_noncondensable_gas/load_80/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_80/normal_long_window"
+}

@@ -1,0 +1,38 @@
+{
+  "run_id": "58_refrigerant_gas_leak",
+  "anomaly_number": 4,
+  "load_percent": 58,
+  "normal_reference": "58_healthy",
+  "cohort": "20261031_audited",
+  "folder": "data/04_refrigerant_vapour_leak/load_58/example",
+  "physics_revision": "physics-4b77d56cbf86691eae1f",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 1080.0,
+  "requested_evaluation_s": 10800.0,
+  "truth_rows": 396,
+  "native_rows": 396,
+  "BMS_rows": 198,
+  "last_truth_time_s": 11850.996,
+  "last_BMS_time_s": 11820.0,
+  "BMS_rows_strictly_after_onset": 179,
+  "terminal_event": null,
+  "model_surge_occurs": false,
+  "source_file_sha256": {
+    "truth.csv": "74fce7f085c2111f9793fbbaea9491510936427e577def84d0e6134a4efe1224",
+    "bms.csv": "6d3dd0bd793ff91bbef6938b84bf2bab3d728e9ed654c2163d1eeae2a8166909",
+    "native_sensors.csv": "84f95e98b25935bcda4429832d04ea446b046be35d82dc1731a1730e4b5546c2",
+    "source_manifest.json": "63adca4a34a6830c53bec07aea391cb43ee28920c57e5c6834a93c74af549fc9"
+  },
+  "files": [
+    "data/04_refrigerant_vapour_leak/load_58/example/bms.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/native_sensors.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/truth.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/source_manifest.json",
+    "data/04_refrigerant_vapour_leak/load_58/example/truth_labels.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/bms_labels.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/usage_mask.csv",
+    "data/04_refrigerant_vapour_leak/load_58/example/run_summary.json"
+  ],
+  "comparison_scope": "Use the specified same-cohort matched normal only",
+  "normal_reference_folder": "data/01_healthy/load_58/normal_long_window"
+}

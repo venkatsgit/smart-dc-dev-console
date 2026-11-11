@@ -1,0 +1,49 @@
+{
+  "run_id": "80_lift_44_r1_b120_d600_dt0.5_guard0_event0.01",
+  "anomaly_number": 16,
+  "load_percent": 80,
+  "normal_reference": "80_normal_cw_1_r0_b120_d600_dt0.5_guard0_event0.01",
+  "cohort": "20261101_long_faults",
+  "folder": "data/16_compressor_surge/load_80/example",
+  "physics_revision": "physics-f4a0642bfdaafe870e76",
+  "code_commit": "f1f24d312d53c6aaf1468f38651f3ea87eee638e",
+  "baseline_s": 120.0,
+  "requested_evaluation_s": 600.0,
+  "truth_rows": 1704,
+  "native_rows": 1704,
+  "BMS_rows": 12,
+  "last_truth_time_s": 719.72,
+  "last_BMS_time_s": 660.0,
+  "BMS_rows_strictly_after_onset": 9,
+  "terminal_event": {
+    "time_s": 122.62000000000134,
+    "kind": "protection",
+    "asset": "HT-CH-01",
+    "name": "repeated_surge",
+    "action": "lockout",
+    "signal": "surge_count",
+    "value": 12.061110923387572,
+    "limit": 12.0,
+    "reason": "Surge cycle count exceeded; compressor locked out to protect the thrust bearing.",
+    "scenario_time_s": 2.6200000000013404
+  },
+  "model_surge_occurs": true,
+  "source_file_sha256": {
+    "truth.csv": "dc5ab20c5a7f3c35daa5f7d71e20bef7e67accf63fe971552c8826e0d9c62278",
+    "bms.csv": "196b16c72974e95fe93f3c82889134ee772e45a65bf187c2f1030f9d1c3cebc0",
+    "native_sensors.csv": "4ce4553e612d80dda48702369f3b51411fa9f764a4d199a68683992771a9bd2e",
+    "source_manifest.json": "bd42396494b20a9eb746aef9433ef9a0f0704184f9f51b8f28db74d8f54d2780"
+  },
+  "files": [
+    "data/16_compressor_surge/load_80/example/bms.csv",
+    "data/16_compressor_surge/load_80/example/native_sensors.csv",
+    "data/16_compressor_surge/load_80/example/truth.csv",
+    "data/16_compressor_surge/load_80/example/source_manifest.json",
+    "data/16_compressor_surge/load_80/example/truth_labels.csv",
+    "data/16_compressor_surge/load_80/example/bms_labels.csv",
+    "data/16_compressor_surge/load_80/example/usage_mask.csv",
+    "data/16_compressor_surge/load_80/example/run_summary.json"
+  ],
+  "comparison_scope": "Boundary stress is the intended difference; not a same-boundary UI-controlled comparison",
+  "normal_reference_folder": "data/01_healthy/load_80/normal_surge_reference"
+}
