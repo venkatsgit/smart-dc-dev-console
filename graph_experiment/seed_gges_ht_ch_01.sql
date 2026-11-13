@@ -2,20 +2,20 @@
 -- Grounded in ASHRAE RP-1043 and Asset-Specific Sensors from sgp7_dev
 
 -- 1. Insert Fault Nodes
-INSERT INTO gges_fault_nodes (id, name, description, affected_sensors) VALUES
+INSERT INTO sgp7_dev.gges_fault_nodes (id, name, description, affected_sensors) VALUES
 ('CF', 'Condenser Fouling', 'Condenser fouling reduces heat-transfer efficiency by adding thermal resistance to the tubes, increasing approach temperature.', ARRAY['CH-CWS-FLOW', 'CH-CON-RFT-PRES', 'CH-OIL-DIS-TEMP', 'CH-CON-APPROACH-TEMP']),
 ('RL', 'Refrigerant Leak', 'Refrigerant mass loss causes starvation of the evaporator, leading to low pressure and high superheat.', ARRAY['CH-EVA-RFT-PRES', 'CH-EVA-RFT-TEMP', 'CH-OIL-DIS-TEMP']),
 ('ROC', 'Refrigerant Overcharge', 'Excess refrigerant causes condenser flooding, increasing subcooling and condensing pressure.', ARRAY['CH-CON-RFT-PRES', 'CH-OIL-DIS-TEMP', 'CH-KW-COMBINED']),
 ('RCWF', 'Reduced Condenser Water Flow', 'Condenser water flow is reduced by pump or blockage faults, leading to poor heat rejection and high discharge pressure.', ARRAY['CH-CWS-FLOW', 'CH-CON-RFT-PRES', 'CH-OIL-DIS-TEMP']),
 ('REWF', 'Reduced Evaporator Water Flow', 'Evaporator water flow is reduced by pump or valve faults, reducing cooling capacity and evaporator pressure.', ARRAY['CH-CHWR-FLOW', 'CH-EVA-RFT-PRES', 'CH-KW-COMBINED']),
 ('NC', 'Non-Condensable Gases', 'Non-condensible gases (like air) trapped in the condenser increase pressure and discharge temperature without flooding.', ARRAY['CH-CON-RFT-PRES', 'CH-OIL-DIS-TEMP', 'CH-KW-COMBINED'])
-ON CONFLICT (id) DO UPDATE SET 
+ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     description = EXCLUDED.description,
     affected_sensors = EXCLUDED.affected_sensors;
 
 -- 2. Insert Symptom Nodes (Total 14 as per Paper)
-INSERT INTO gges_symptom_nodes (id, name, sensor_id, direction, formula_logic, formula_description) VALUES
+INSERT INTO sgp7_dev.gges_symptom_nodes (id, name, sensor_id, direction, formula_logic, formula_description) VALUES
 -- Direct Sensors
 ('PRC_rise', 'Condenser Pressure Rise', 'C_100_2410', 1, 'z_score(CH-CON-RFT-PRES) > tau_strong', 'Rise in Condenser Refrigerant Pressure (CH-CON-RFT-PRES)'),
 ('PRE_drop', 'Evaporator Pressure Drop', 'C_100_2405', -1, 'z_score(CH-EVA-RFT-PRES) < -tau_strong', 'Drop in Evaporator Refrigerant Pressure (CH-EVA-RFT-PRES)'),
@@ -33,7 +33,7 @@ INSERT INTO gges_symptom_nodes (id, name, sensor_id, direction, formula_logic, f
 ('fdir_flood', 'Flooding Indicator (fdir-)', NULL, -1, 'z_Tsuc - (z_TRdis^2 + z_TRCsub^2) < 0', 'Negative fdir: Suction Temp Drop > High-Side Rise (Flooding Pattern)'),
 ('Qbal_error', 'Heat Balance Residual', NULL, 1, 'abs(Q_evap + kW - Q_cond) > threshold', 'Thermodynamic inconsistency in Heat Balance (Q_evap + kW - Q_cond)'),
 ('flow_collapse', 'Total Flow Collapse', NULL, -1, 'z_FWC < -2.0 AND z_FWE < -2.0', 'Simultaneous drop in both water loops (Pump/System Failure)')
-ON CONFLICT (id) DO UPDATE SET 
+ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     sensor_id = EXCLUDED.sensor_id,
     direction = EXCLUDED.direction,
@@ -41,7 +41,7 @@ ON CONFLICT (id) DO UPDATE SET
     formula_description = EXCLUDED.formula_description;
 
 -- 3. Insert Edges (Expert Weights from SSRN-7656122 Table 6 & GGES Logic)
-INSERT INTO gges_edges (fault_id, symptom_id, relation_type, weight) VALUES
+INSERT INTO sgp7_dev.gges_edges (fault_id, symptom_id, relation_type, weight) VALUES
 -- NC (Non-Condensable Gases)
 ('NC', 'PRC_rise', 'indicates', 8.0),
 ('NC', 'TRdis_rise', 'indicates', 8.0),
@@ -78,5 +78,5 @@ INSERT INTO gges_edges (fault_id, symptom_id, relation_type, weight) VALUES
 ('RL', 'Tsuc_rise', 'distinguishes', 1.0),
 ('RL', 'TRCsub_drop', 'indicates', 8.0),
 ('RL', 'fdir_starve', 'indicates', 6.0)
-ON CONFLICT (fault_id, symptom_id, relation_type) DO UPDATE SET 
+ON CONFLICT (fault_id, symptom_id, relation_type) DO UPDATE SET
     weight = EXCLUDED.weight;
