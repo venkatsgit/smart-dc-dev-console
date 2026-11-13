@@ -203,17 +203,23 @@ The knowledge graph is persisted in a relational database to enable scalability 
 2.  **`gges_symptom_nodes`**: Stores the 14 thermodynamic symptoms, mapping them to physical `sensor_id` values or SQL-based formulas.
 3.  **`gges_edges`**: Defines the many-to-many relationship (`indicates` or `distinguishes`) and expert weights.
 
-### HT-CH-01 Sensor Mapping
+### HT-CH-01 Sensor Mapping (Verified)
+
+The following sensors from `sgp7_dev.sensor_master` are mapped to the physics symbols used in the GGES engine:
 
 | Physics Symbol | Sensor ID | Sensor Name | Diagnostic Role |
 | :--- | :--- | :--- | :--- |
 | `PRC` | `C_100_2410` | `CH-CON-RFT-PRES` | Condenser Refrigerant Pressure |
 | `PRE` | `C_100_2405` | `CH-EVA-RFT-PRES` | Evaporator Refrigerant Pressure |
-| `TRdis` | `C_100_2408` | `CH-CON-RFT-TEMP` | Discharge Temperature (Proxy) |
-| `Tsuc` | `C_100_2403` | `CH-EVA-RFT-TEMP` | Suction Temperature |
+| `TRdis` | `C_100_2414` | `CH-OIL-DIS-TEMP` | Discharge Temperature (Proxy) |
+| `Tsuc` | `C_100_2403` | `CH-EVA-RFT-TEMP` | Suction Temperature (Proxy) |
 | `kW` | `C_100_2919_MD`| `CH-KW-COMBINED` | Compressor Power |
 | `FWC` | `C_100_2029` | `CH-CWS-FLOW` | Condenser Water Flow |
 | `FWE` | `C_100_2028` | `CH-CHWR-FLOW` | Chilled Water Flow |
+
+### Node Coverage
+*   **Faults**: 6 primary thermodynamic faults (CF, RL, ROC, RCWF, REWF, NC).
+*   **Symptoms**: 14 nodes including direct sensor rise/drop and derived indicators like `fdir` (starvation/flooding) and `Qbal` (heat balance residual).
 
 ### Derived Logic Examples
 
