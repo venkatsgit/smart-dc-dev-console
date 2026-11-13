@@ -129,21 +129,34 @@ Learning would bias toward faults already seen. Expert ASHRAE weights preserve f
 
 ## Slide 5 — Graph Built from Tables (Reference Image)
 
-The live graph is stored as relational tables and rendered below for presentation use.
+The image below is **generated from the live DB tables** (not hand-drawn). All 6 faults and **14 symptom nodes** are loaded from `sgp7_dev`.
 
 ![GGES Fault–Symptom Knowledge Graph](gges_fault_symptom_graph.jpg)
+
+**How to regenerate the artifact**
+
+```bash
+# from graph_experiment/
+set PGPASSWORD=<dev_password>
+python render_gges_graph.py --out gges_fault_symptom_graph.jpg
+```
+
+`render_gges_graph.py` reads:
+1. `sgp7_dev.gges_fault_nodes`
+2. `sgp7_dev.gges_symptom_nodes` (direct = has `sensor_id`, derived = formula)
+3. `sgp7_dev.gges_edges` (`indicates` / `distinguishes` + weight)
 
 **Table → graph mapping**
 
 | Table | Graph role |
 | --- | --- |
 | `sgp7_dev.gges_fault_nodes` | Left-side fault hypotheses |
-| `sgp7_dev.gges_symptom_nodes` | Right-side directional symptoms |
+| `sgp7_dev.gges_symptom_nodes` | Right-side directional symptoms (14) |
 | `sgp7_dev.gges_edges` | Directed edges with `indicates` / `distinguishes` + weight |
 
 **Current seed counts (HT-CH-01)**
 - 6 faults
-- 14 symptoms
+- 14 symptoms (8 direct sensors + 6 derived)
 - 25 edges
 
 ---
