@@ -7,9 +7,14 @@
 
 **Graph-Grounded Evidence Scoring (GGES)** converts continuous chiller telemetry into a physics-consistent fault verdict.
 
+### What does ASHRAE mean?
+**ASHRAE** = **American Society of Heating, Refrigerating and Air-Conditioning Engineers**.
+
+It is the industry standards body for HVAC and refrigeration. The fault–symptom knowledge used here comes from ASHRAE research project **RP-1043**, which published laboratory-validated chiller fault signatures (pressure, temperature, flow, power patterns) used as the physics basis for this graph.
+
 **Problem it solves**
 - Chillers (vapour-compression cycle) couple evaporator, compressor, condenser, and water loops.
-- Different faults share overlapping sensor signatures (e.g. NC vs ROC both raise condenser pressure).
+- Different faults share overlapping sensor signatures (e.g. Non-Condensable Gases vs Refrigerant Overcharge both raise condenser pressure).
 - Closed-set ML can force an unseen fault into the nearest known class.
 
 **ASHRAE foundation**
@@ -37,10 +42,10 @@ GGES(fault) = Support (indicates) + Bonus (distinguishes) - Penalty (contradicti
 Fault  --(indicates / distinguishes)-->  Symptom
 ```
 
-| Layer | Count (paper) | Examples |
+| Layer | Count (paper) | Examples (names) |
 | --- | --- | --- |
-| Fault nodes | 6 | CF, RL, ROC, RCWF, REWF, NC |
-| Symptom nodes | 14 | PRC_rise, FWC_drop, fdir_flood, Qbal_error |
+| Fault nodes | 6 | Condenser Fouling, Refrigerant Leak, Refrigerant Overcharge, Reduced Condenser Water Flow, Reduced Evaporator Water Flow, Non-Condensable Gases |
+| Symptom nodes | 14 | Condenser Pressure Rise, Condenser Flow Drop, Flooding Indicator, Heat Balance Residual |
 
 **Edge types used for GGES scoring**
 
@@ -50,8 +55,8 @@ Fault  --(indicates / distinguishes)-->  Symptom
 | `distinguishes` | Symptom uniquely separates one fault from competitors | Adds `beta × confidence` bonus |
 
 **Why both edges matter**
-- Shared symptoms alone cannot separate NC vs ROC.
-- A `distinguishes` edge (e.g. NC → TRdis_rise) breaks the tie when discharge temperature rises.
+- Shared symptoms alone cannot separate Non-Condensable Gases vs Refrigerant Overcharge.
+- A `distinguishes` edge (Non-Condensable Gases → Discharge Temperature Rise) breaks the tie when discharge temperature rises.
 
 **DB tables in `sgp7_dev`**
 - `gges_fault_nodes`
@@ -62,17 +67,17 @@ Fault  --(indicates / distinguishes)-->  Symptom
 
 ## Slide 3 — Symptoms: Direct Sensors, Derived Formulas, and Z-Score Activation
 
-### Symptom sources
+### Symptom sources (by symptom name)
 
-| Type | Examples | How measured |
+| Type | Symptom names | How measured |
 | --- | --- | --- |
-| Direct sensor | PRC_rise, FWC_drop, PRE_drop, kW_rise | One mapped `sensor_id` from `sensor_master` |
-| Derived physics | TRCsub_rise, fdir_flood, Qbal_error, flow_collapse | Formula over multiple sensors / features |
+| Direct sensor | Condenser Pressure Rise, Condenser Flow Drop, Evaporator Pressure Drop, Compressor Power Rise | One mapped `sensor_id` from `sensor_master` |
+| Derived physics | Subcooling Rise, Flooding Indicator, Heat Balance Residual, Total Flow Collapse | Formula over multiple sensors / features |
 
 **HT-CH-01 direct mapping examples**
-- PRC → `C_100_2410` (`CH-CON-RFT-PRES`)
-- FWC → `C_100_2029` (`CH-CWS-FLOW`)
-- TRdis proxy → `C_100_2414` (`CH-OIL-DIS-TEMP`)
+- Condenser Pressure Rise → `C_100_2410` (`CH-CON-RFT-PRES`)
+- Condenser Flow Drop → `C_100_2029` (`CH-CWS-FLOW`)
+- Discharge Temperature Rise (proxy) → `C_100_2414` (`CH-OIL-DIS-TEMP`)
 
 ### What is a z-score? (basis of symptom activation)
 
@@ -96,7 +101,7 @@ conf = linear scale otherwise
 | `tau_weak` | 0.3 | Noise floor (ignore small deviations) |
 | `tau_strong` | 1.5 | Strong certainty (full confidence) |
 
-**Key point:** We do not train a model for `TRCsub_rise`. We compute/derive the feature, convert to z-score, then activate the symptom node by direction.
+**Key point:** We do not train a model for Subcooling Rise. We compute/derive the feature, convert to z-score, then activate the symptom node by direction.
 
 ---
 
@@ -129,7 +134,7 @@ Learning would bias toward faults already seen. Expert ASHRAE weights preserve f
 
 ## Slide 5 — Graph Built from Tables (Reference Image)
 
-The image below is **generated from the live DB tables** (not hand-drawn). All 6 faults and **14 symptom nodes** are loaded from `sgp7_dev`.
+The image below is **generated from the live DB tables**. Symptom boxes show the **symptom name** (from `gges_symptom_nodes.name`), direction arrow, and sensor/derived tag.
 
 ![GGES Fault–Symptom Knowledge Graph](gges_fault_symptom_graph.jpg)
 
@@ -143,7 +148,7 @@ python render_gges_graph.py --out gges_fault_symptom_graph.jpg
 
 `render_gges_graph.py` reads:
 1. `sgp7_dev.gges_fault_nodes`
-2. `sgp7_dev.gges_symptom_nodes` (direct = has `sensor_id`, derived = formula)
+2. `sgp7_dev.gges_symptom_nodes` (display = **name**; direct = has `sensor_id`, derived = formula)
 3. `sgp7_dev.gges_edges` (`indicates` / `distinguishes` + weight)
 
 **Table → graph mapping**
@@ -151,7 +156,7 @@ python render_gges_graph.py --out gges_fault_symptom_graph.jpg
 | Table | Graph role |
 | --- | --- |
 | `sgp7_dev.gges_fault_nodes` | Left-side fault hypotheses |
-| `sgp7_dev.gges_symptom_nodes` | Right-side directional symptoms (14) |
+| `sgp7_dev.gges_symptom_nodes` | Right-side symptom **names** (14) |
 | `sgp7_dev.gges_edges` | Directed edges with `indicates` / `distinguishes` + weight |
 
 **Current seed counts (HT-CH-01)**
@@ -164,34 +169,34 @@ python render_gges_graph.py --out gges_fault_symptom_graph.jpg
 ## Slide 6 — Traversal Example: Root Cause with Distinguishes + Weights
 
 **Telemetry (z-scores)**
-- PRC = +2.0
-- TRCsub = +1.8
-- TRdis = +2.2
-- fdir ≈ 0 (no flooding activation)
+- Condenser Pressure (PRC) = +2.0
+- Subcooling (TRCsub) = +1.8
+- Discharge Temperature (TRdis) = +2.2
+- Flooding Indicator (fdir) ≈ 0 (no activation)
 
 **Step A — Symptom activation**
-- PRC_rise → supportive, conf = 1.0
-- TRCsub_rise → supportive, conf = 1.0
-- TRdis_rise → supportive, conf = 1.0
-- fdir_flood → conf = 0.0
+- Condenser Pressure Rise → supportive, conf = 1.0
+- Subcooling Rise → supportive, conf = 1.0
+- Discharge Temperature Rise → supportive, conf = 1.0
+- Flooding Indicator → conf = 0.0
 
-**Step B — Score ROC (shared symptoms only)**
-- indicates PRC_rise: 8.0 × 1.0 = 8.0
-- indicates TRCsub_rise: 8.0 × 1.0 = 8.0
-- indicates fdir_flood: 0
-- **ROC total = 16.0**
+**Step B — Score Refrigerant Overcharge (shared symptoms only)**
+- indicates Condenser Pressure Rise: 8.0 × 1.0 = 8.0
+- indicates Subcooling Rise: 8.0 × 1.0 = 8.0
+- indicates Flooding Indicator: 0
+- **Refrigerant Overcharge total = 16.0**
 
-**Step C — Score NC (shared + distinguishing)**
-- indicates PRC_rise: 8.0 × 1.0 = 8.0
-- indicates TRCsub_rise: 6.0 × 1.0 = 6.0
-- indicates TRdis_rise: 8.0 × 1.0 = 8.0
-- distinguishes TRdis_rise: beta × 1.0 = +2.0
-- **NC total = 24.0**
+**Step C — Score Non-Condensable Gases (shared + distinguishing)**
+- indicates Condenser Pressure Rise: 8.0 × 1.0 = 8.0
+- indicates Subcooling Rise: 6.0 × 1.0 = 6.0
+- indicates Discharge Temperature Rise: 8.0 × 1.0 = 8.0
+- distinguishes Discharge Temperature Rise: beta × 1.0 = +2.0
+- **Non-Condensable Gases total = 24.0**
 
 **Verdict**
-- NC (24.0) > ROC (16.0)
-- Root cause selected: **Non-Condensable Gases (NC)**
-- The `distinguishes` edge on discharge-temperature rise is what separates NC from ROC when pressure/subcooling look similar.
+- Non-Condensable Gases (24.0) > Refrigerant Overcharge (16.0)
+- Root cause selected: **Non-Condensable Gases**
+- The `distinguishes` edge on Discharge Temperature Rise is what separates Non-Condensable Gases from Refrigerant Overcharge when pressure/subcooling look similar.
 
 ```text
 Activated symptoms → traverse Fault→Symptom edges → accumulate w0 and beta → argmax GGES

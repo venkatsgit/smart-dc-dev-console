@@ -92,12 +92,12 @@ def build_graph(faults, symptoms, edges) -> nx.MultiDiGraph:
     for s in symptoms:
         kind = "direct" if s["sensor_id"] else "derived"
         arrow = "↑" if s["direction"] == 1 else "↓"
-        sensor_bit = s["sensor_id"] or "derived"
+        sensor_bit = s["sensor_id"] or "derived formula"
         G.add_node(
             s["id"],
             node_type="symptom",
             kind=kind,
-            label=f"{s['id']} {arrow}\n{sensor_bit}",
+            label=f"{s['name']} {arrow}\n{sensor_bit}",
         )
     for e in edges:
         G.add_edge(
@@ -119,13 +119,29 @@ def layout_positions(faults, symptoms):
         pos[f["id"]] = (0.12, y)
     for i, s in enumerate(symptoms):
         y = 1.0 - (i + 0.5) / n_s
-        pos[s["id"]] = (0.78, y)
+        pos[s["id"]] = (0.82, y)
     return pos
+
+
+def _wrap_name(name: str, max_chars: int = 22) -> str:
+    words = name.split()
+    lines, cur = [], ""
+    for w in words:
+        trial = f"{cur} {w}".strip()
+        if len(trial) <= max_chars:
+            cur = trial
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+    return "\n".join(lines)
 
 
 def render_graph(G, faults, symptoms, edges, out_path: Path):
     pos = layout_positions(faults, symptoms)
-    fig, ax = plt.subplots(figsize=(16, 10), dpi=160)
+    fig, ax = plt.subplots(figsize=(18, 12), dpi=160)
     ax.set_xlim(0, 1)
     ax.set_ylim(-0.05, 1.12)
     ax.axis("off")
@@ -139,7 +155,7 @@ def render_graph(G, faults, symptoms, edges, out_path: Path):
 
     # Column headers
     ax.text(0.12, 1.05, "Fault Nodes", ha="center", fontsize=12, fontweight="bold", color="#1f3a5f")
-    ax.text(0.78, 1.05, "Symptom Nodes", ha="center", fontsize=12, fontweight="bold", color="#1f3a5f")
+    ax.text(0.82, 1.05, "Symptom Nodes (by name)", ha="center", fontsize=12, fontweight="bold", color="#1f3a5f")
 
     # Draw edges first
     for e in edges:
@@ -151,7 +167,7 @@ def render_graph(G, faults, symptoms, edges, out_path: Path):
         lw = 2.0 if is_dist else 1.3
         ax.annotate(
             "",
-            xy=(x2 - 0.07, y2),
+            xy=(x2 - 0.095, y2),
             xytext=(x1 + 0.07, y1),
             arrowprops=dict(
                 arrowstyle="-|>",
@@ -184,7 +200,7 @@ def render_graph(G, faults, symptoms, edges, out_path: Path):
         ax.add_patch(box)
         ax.text(x, y, f"{f['id']}\n{f['name']}", ha="center", va="center", fontsize=7.5, color="#102a43")
 
-    # Draw symptom boxes
+    # Draw symptom boxes — show symptom NAME (not only id)
     for s in symptoms:
         x, y = pos[s["id"]]
         is_direct = bool(s["sensor_id"])
@@ -192,10 +208,11 @@ def render_graph(G, faults, symptoms, edges, out_path: Path):
         edge = "#2e7d32" if is_direct else "#ef6c00"
         arrow = "↑" if s["direction"] == 1 else "↓"
         sensor_bit = s["sensor_id"] or "derived formula"
+        name_txt = _wrap_name(s["name"], max_chars=24)
         box = FancyBboxPatch(
-            (x - 0.09, y - 0.028),
-            0.18,
-            0.056,
+            (x - 0.095, y - 0.032),
+            0.19,
+            0.064,
             boxstyle="round,pad=0.006,rounding_size=0.015",
             linewidth=1.3,
             edgecolor=edge,
@@ -205,10 +222,10 @@ def render_graph(G, faults, symptoms, edges, out_path: Path):
         ax.text(
             x,
             y,
-            f"{s['id']} {arrow}\n{sensor_bit}",
+            f"{name_txt} {arrow}\n{sensor_bit}",
             ha="center",
             va="center",
-            fontsize=7,
+            fontsize=6.5,
             color="#102a43",
         )
 
@@ -253,7 +270,7 @@ def main():
     print("Symptoms:")
     for s in symptoms:
         kind = "direct" if s["sensor_id"] else "derived"
-        print(f"  - {s['id']:14} [{kind:7}] dir={s['direction']:+d}  {s['sensor_id'] or '-'}")
+        print(f"  - {s['name']:32} [{kind:7}] dir={s['direction']:+d}  {s['sensor_id'] or '-'}")
     print(f"Wrote: {out}")
 
 
