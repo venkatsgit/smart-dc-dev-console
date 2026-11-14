@@ -65,43 +65,31 @@ Fault  --(indicates / distinguishes)-->  Symptom
 
 ---
 
-## Slide 3 — Symptoms: Direct Sensors, Derived Formulas, and Z-Score Activation
+## Slide 3 — Symptoms, Z-Score, and Confidence Activation
 
-### Symptom sources (by symptom name)
+### What defines a Symptom?
+In GGES, a **Symptom** is not just a sensor; it is a **Directional Event**.
+- **Example:** "Condenser Pressure" is a sensor. "**Condenser Pressure Rise**" is the symptom.
+- Physics dictates the direction (Rise or Drop). If the sensor moves as predicted, the symptom is **Supportive**. If it moves opposite, it is **Contradictory**.
 
-| Type | Symptom names | How measured |
-| --- | --- | --- |
-| Direct sensor | Condenser Pressure Rise, Condenser Flow Drop, Evaporator Pressure Drop, Compressor Power Rise | One mapped `sensor_id` from `sensor_master` |
-| Derived physics | Subcooling Rise, Flooding Indicator, Heat Balance Residual, Total Flow Collapse | Formula over multiple sensors / features |
-
-**HT-CH-01 direct mapping examples**
-- Condenser Pressure Rise → `C_100_2410` (`CH-CON-RFT-PRES`)
-- Condenser Flow Drop → `C_100_2029` (`CH-CWS-FLOW`)
-- Discharge Temperature Rise (proxy) → `C_100_2414` (`CH-OIL-DIS-TEMP`)
-
-### What is a z-score? (basis of symptom activation)
+### Symptom Activation (z-score basis)
+We use **z-scores** (standard deviations from normal) to determine if a symptom is "active."
 
 ```text
 z = (current_value - normal_mean) / normal_std
-```
-
-- `z = 0` → normal
-- large positive / negative → strong abnormal deviation
-- Symptom activation uses direction × z:
-
-```text
 a_s = expected_direction × z
-conf = 0 if |a_s| < tau_weak
-conf = 1 if |a_s| >= tau_strong
-conf = linear scale otherwise
 ```
 
-| Parameter | Typical value | Meaning |
-| --- | --- | --- |
-| `tau_weak` | 0.3 | Noise floor (ignore small deviations) |
-| `tau_strong` | 1.5 | Strong certainty (full confidence) |
+### Explaining Confidence (conf)
+**Confidence** is a value from **0.0 to 1.0** that represents how "sure" we are of the symptom. It filters out noise:
 
-**Key point:** We do not train a model for Subcooling Rise. We compute/derive the feature, convert to z-score, then activate the symptom node by direction.
+| Activation Magnitude (\( |a_s| \)) | Confidence (\( conf \)) | Meaning |
+| :--- | :--- | :--- |
+| Below `tau_weak` (0.3) | **0.0** | **Noise Floor:** Ignore tiny deviations. |
+| Above `tau_strong` (1.5) | **1.0** | **Saturation:** Full certainty of a physical shift. |
+| Between 0.3 and 1.5 | **0.0 to 1.0** | **Linear Scale:** Partial evidence. |
+
+**Key point:** We do not train models for "Subcooling Rise." We calculate the physics feature, convert it to a z-score, and use this **Confidence Activation** to trigger the graph.
 
 ---
 
@@ -127,14 +115,11 @@ Weights (`w0`) on `indicates` edges are **expert physics priors**, not data-lear
 - `distinguishes` does not use a per-edge learned weight; it triggers a global bonus `beta` (paper default 2.0).
 - Contradiction uses penalty `gamma` (paper default 0.5) when the sensor moves opposite to physics.
 
-**Why not learn weights from data?**
-Learning would bias toward faults already seen. Expert ASHRAE weights preserve first-principles diagnosis for first-occurrence / unseen faults.
-
 ---
 
 ## Slide 5 — Graph Built from Tables (Reference Image)
 
-The image below is **generated from the live DB tables**. Symptom boxes show the **symptom name** (from `gges_symptom_nodes.name`), direction arrow, and sensor/derived tag.
+The image below is **generated from the live DB tables**. Symptom boxes show the **symptom name**, direction arrow, and sensor/derived tag.
 
 ![GGES Fault–Symptom Knowledge Graph](gges_fault_symptom_graph.jpg)
 
@@ -146,19 +131,6 @@ set PGPASSWORD=<dev_password>
 python render_gges_graph.py --out gges_fault_symptom_graph.jpg
 ```
 
-`render_gges_graph.py` reads:
-1. `sgp7_dev.gges_fault_nodes`
-2. `sgp7_dev.gges_symptom_nodes` (display = **name**; direct = has `sensor_id`, derived = formula)
-3. `sgp7_dev.gges_edges` (`indicates` / `distinguishes` + weight)
-
-**Table → graph mapping**
-
-| Table | Graph role |
-| --- | --- |
-| `sgp7_dev.gges_fault_nodes` | Left-side fault hypotheses |
-| `sgp7_dev.gges_symptom_nodes` | Right-side symptom **names** (14) |
-| `sgp7_dev.gges_edges` | Directed edges with `indicates` / `distinguishes` + weight |
-
 **Current seed counts (HT-CH-01)**
 - 6 faults
 - 14 symptoms (8 direct sensors + 6 derived)
@@ -166,38 +138,55 @@ python render_gges_graph.py --out gges_fault_symptom_graph.jpg
 
 ---
 
-## Slide 6 — Traversal Example: Root Cause with Distinguishes + Weights
+## Slide 6 — Traversal Example: Root Cause Selection
 
 **Telemetry (z-scores)**
-- Condenser Pressure (PRC) = +2.0
-- Subcooling (TRCsub) = +1.8
-- Discharge Temperature (TRdis) = +2.2
-- Flooding Indicator (fdir) ≈ 0 (no activation)
+- Condenser Pressure Rise = +2.0 (\( conf=1.0 \))
+- Subcooling Rise = +1.8 (\( conf=1.0 \))
+- Discharge Temperature Rise = +2.2 (\( conf=1.0 \))
+- Flooding Indicator ≈ 0 (\( conf=0.0 \))
 
-**Step A — Symptom activation**
-- Condenser Pressure Rise → supportive, conf = 1.0
-- Subcooling Rise → supportive, conf = 1.0
-- Discharge Temperature Rise → supportive, conf = 1.0
-- Flooding Indicator → conf = 0.0
-
-**Step B — Score Refrigerant Overcharge (shared symptoms only)**
-- indicates Condenser Pressure Rise: 8.0 × 1.0 = 8.0
+**ROC Score (Overcharge)**
+- indicates Pressure Rise: 8.0 × 1.0 = 8.0
 - indicates Subcooling Rise: 8.0 × 1.0 = 8.0
-- indicates Flooding Indicator: 0
-- **Refrigerant Overcharge total = 16.0**
+- **Total = 16.0**
 
-**Step C — Score Non-Condensable Gases (shared + distinguishing)**
-- indicates Condenser Pressure Rise: 8.0 × 1.0 = 8.0
+**NC Score (Non-Condensable Gases)**
+- indicates Pressure Rise: 8.0 × 1.0 = 8.0
 - indicates Subcooling Rise: 6.0 × 1.0 = 6.0
-- indicates Discharge Temperature Rise: 8.0 × 1.0 = 8.0
-- distinguishes Discharge Temperature Rise: beta × 1.0 = +2.0
-- **Non-Condensable Gases total = 24.0**
+- indicates Discharge Temp Rise: 8.0 × 1.0 = 8.0
+- **distinguishes** Discharge Temp Rise: **beta bonus +2.0**
+- **Total = 24.0** (Verdict: NC)
 
-**Verdict**
-- Non-Condensable Gases (24.0) > Refrigerant Overcharge (16.0)
-- Root cause selected: **Non-Condensable Gases**
-- The `distinguishes` edge on Discharge Temperature Rise is what separates Non-Condensable Gases from Refrigerant Overcharge when pressure/subcooling look similar.
+---
 
-```text
-Activated symptoms → traverse Fault→Symptom edges → accumulate w0 and beta → argmax GGES
-```
+## Slide 7 — Autonomous SME Agent Tooling
+
+This GGES framework is designed to be a **Core Tool** for an **Autonomous SME Agent**.
+
+### Workflow Integration
+1. **Anomaly Detection:** A specialized model (e.g. Autoencoder or LSTM) monitors all chiller sensors and throws an "Anomaly Alert" when behavior shifts from normal.
+2. **Agent Activation:** Our Autonomous SME Agent receives the alert. It doesn't just see "high pressure"; it needs to know "Why?"
+3. **GGES Tool Call:** The Agent passes the current sensor z-scores into the **GGES Engine**.
+4. **Root Cause Identification:** The GGES Engine traverses the Knowledge Graph and returns:
+   - The most likely **Root Cause** (e.g. Condenser Fouling).
+   - The **Evidence Score** (GGES).
+   - The **Supporting Symptoms** that led to the verdict.
+5. **Human-in-the-loop Explanation:** The Agent uses this graph-grounded evidence to explain the fault to the operator with physical certainty.
+
+---
+
+## Slide 8 — Limitations and Framework Extensibility
+
+The current implementation follows the **SSRN-7656122** research paper faithfully, but it is important to recognize its scope:
+
+### Current Limitations
+- **Fault Coverage:** Only **6 primary thermodynamic faults** are included (ASHRAE RP-1043 set). It does not yet cover mechanical issues (e.g. bearing wear, oil pump failure).
+- **Static Weights:** The expert weights are fixed priors. While robust for zero-shot diagnosis, they don't adapt to specific site variations without manual tuning.
+- **Sensor Dependency:** The engine is only as good as the sensors mapped. Missing critical sensors (like discharge temp) reduces the "distinguishing" power of the graph.
+
+### A Physics-Informed Framework
+This is not a "black box" model, but a **Framework**.
+- **Extensible:** We can add the 7th, 8th, or 100th fault just by adding rows to the `gges_fault_nodes` and `gges_edges` tables.
+- **Traceable:** Every diagnosis is 100% explainable by thermodynamic first principles.
+- **Zero-Shot Ready:** Can identify faults that have never occurred on this specific chiller before, because the physics is universal.
