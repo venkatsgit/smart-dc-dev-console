@@ -25,6 +25,9 @@ The evaporator’s job is to "sponge up" heat from the building.
 1.  **Stage 1: Blockage (Midnight).** Chilled water flow immediately drops by 20% (**Tag: `CH-CHWR-FLOW`**).
 2.  **Stage 2: Over-Cooling.** Because the water is moving slower, it stays in contact with the freezing refrigerant for longer. The water temperature drops lower than the setpoint.
 3.  **Stage 3: Pressure Collapse.** The chiller computer sees the water getting too cold. It drops its **boiling pressure (Suction Pressure)** even lower to try and maintain control. You will see **Tag: `CH-EVA-RFT-PRES`** fall.
+    *   **The Physics:** When flow drops, the "heat load" on the evaporator evaporates less refrigerant. The controller sees the leaving water temperature (**CH-CHWST**) falling below the setpoint and tries to adjust.
+    *   **The Logic:** To maintain the temperature difference (approach) needed for heat exchange with less water, the system lowers the "saturation floor." 
+    *   **The Observation:** You will see a sharp decline in **CH-EVA-RFT-PRES**. This isn't just a side effect; it's the machine "digging deeper" into the pressure range, which brings it dangerously close to the freezing point (0°C / 32°F).
 4.  **Outcome: Freeze Risk.** If the flow drops too far, the water can actually **freeze** inside the tubes, which would rupture the metal and destroy the chiller.
 5.  **Efficiency:** Like evaporator fouling, the lower Suction Pressure makes the machine less efficient.
 

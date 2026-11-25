@@ -1,0 +1,249 @@
+Here is a line-by-line explanation of the **`ChillerGGESEngine`** script, broken down section by section so you can see exactly how the thermodynamics and graph mathematics are implemented.
+
+---
+
+### Part 1: Imports and Class Initialization
+
+```python
+import numpy as np
+import networkx as nx
+```
+* **`import numpy as np`**: Imports NumPy for numerical calculations.
+* **`import networkx as nx`**: Imports NetworkX, Python's standard library for creating, manipulating, and traversing graph and network data structures.
+
+```python
+class ChillerGGESEngine:
+    def __init__(self, beta=2.0, gamma=0.5, theta_min=0.5, tau_weak=0.3, tau_strong=1.5):
+```
+* Defines the engine class and sets the thermodynamic hyperparameter defaults from the research paper:
+  * **`beta = 2.0`**: The bonus multiplier for **discriminating** symptoms (symptoms that uniquely distinguish one fault from another).
+  * **`gamma = 0.5`**: The penalty multiplier for **contradictory** physical evidence.
+  * **`theta_min = 0.5`**: The minimum confidence threshold required to accept a diagnosis; if no fault scores at least 0.5, the diagnosis is marked "Unresolved".
+  * **`tau_weak = 0.3`**: The noise floor threshold (\\(0.3\sigma\\)). Any sensor deviation below this is treated as random noise.
+  * **`tau_strong = 1.5`**: The strong evidence threshold (\\(1.5\sigma\\)). Any deviation at or above this indicates strong physical certainty (confidence = 1.0).
+
+```python
+        self.beta = beta
+        self.gamma = gamma
+        self.theta_min = theta_min
+        self.tau_weak = tau_weak
+        self.tau_strong = tau_strong
+        self.G = nx.MultiDiGraph()
+        self._build_ashrae_graph()
+```
+* **`self.G = nx.MultiDiGraph()`**: Initializes an empty **directed multigraph**. A "directed multigraph" allows directed edges (\\(A \rightarrow B\\)) and allows *multiple parallel edges* between the same two nodes (e.g., an `indicates` edge and a `distinguishes` edge between the same fault and symptom).
+* **`self._build_ashrae_graph()`**: Immediately calls the internal setup method to populate the nodes and edges.
+
+---
+
+### Part 2: Building the Domain Knowledge Graph (`_build_ashrae_graph`)
+
+```python
+    def _build_ashrae_graph(self):
+        # 1. Fault Nodes
+        self.faults = ["CF", "RL", "ROC", "RCWF", "REWF", "NC"]
+        for f in self.faults:
+            self.G.add_node(f, node_type="Fault")
+```
+* Defines the 6 fault hypotheses:
+  * `CF`: Condenser Fouling
+  * `RL`: Refrigerant Leak
+  * `ROC`: Refrigerant Overcharge
+  * `RCWF`: Reduced Condenser Water Flow
+  * `REWF`: Reduced Evaporator Water Flow
+  * `NC`: Non-Condensable Gases
+* Adds each fault as a node in the graph with the metadata attribute `node_type="Fault"`.
+
+```python
+        # 2. Key Symptom Nodes & Expected Physical Directions (+1: rise, -1: drop)
+        self.symptoms = {
+            "FWC_drop": ("FWC", -1),
+            "FWE_drop": ("FWE", -1),
+            "TRdis_rise": ("TRdis", +1),
+            "TRCsub_rise": ("TRCsub", +1),
+            "PRC_rise": ("PRC", +1),
+            "fdir+": ("fdir", +1),  # Starvation
+            "fdir-": ("fdir", -1),  # Flooding
+        }
+```
+* Maps each directional symptom to two physical properties:
+  1. **Physical sensor name** (e.g., `PRC` for condenser pressure, `TRdis` for discharge temperature).
+  2. **Expected physical direction**: `+1` means the symptom represents an abnormal **increase/rise**; `-1` means an abnormal **decrease/drop**.
+
+```python
+        for s_name, (sensor, direction) in self.symptoms.items():
+            self.G.add_node(s_name, node_type="Symptom", sensor=sensor, direction=direction)
+```
+* Iterates through the dictionary to register each symptom as a graph node, tagging it with `node_type="Symptom"`, the physical sensor it monitors, and its expected sign (`+1` or `-1`).
+
+```python
+        # 3. Directed Edges (indicates: weight w0, distinguishes: boolean bonus)
+        # Non-Condensable Gases (NC)
+        self.G.add_edge("NC", "PRC_rise", relation="indicates", weight=8.0)
+        self.G.add_edge("NC", "TRCsub_rise", relation="indicates", weight=6.0)
+        self.G.add_edge("NC", "fdir-", relation="indicates", weight=4.0)
+        self.G.add_edge("NC", "TRdis_rise", relation="indicates", weight=8.0)
+        self.G.add_edge("NC", "TRdis_rise", relation="distinguishes")  # Distinguishes NC from ROC
+```
+* **`self.G.add_edge(...)`**: Connects the `NC` fault node to its physical symptoms.
+* `weight=8.0`, `6.0`, `4.0`: Expert thermodynamic baseline weights (\\(w_0\\)). Higher values reflect stronger primary indicators.
+* **`relation="distinguishes"`**: Adds a second, parallel edge between `NC` and `TRdis_rise`. Air trapped in the condenser elevates discharge temperature, whereas refrigerant overcharge (`ROC`) does not. This edge tells the scoring engine to grant a bonus when discharge temperature rises.
+
+```python
+        # Refrigerant Overcharge (ROC)
+        self.G.add_edge("ROC", "PRC_rise", relation="indicates", weight=8.0)
+        self.G.add_edge("ROC", "TRCsub_rise", relation="indicates", weight=8.0)
+        self.G.add_edge("ROC", "fdir-", relation="indicates", weight=6.0)
+
+        # Reduced Condenser Water Flow (RCWF)
+        self.G.add_edge("RCWF", "FWC_drop", relation="indicates", weight=10.0)
+        self.G.add_edge("RCWF", "PRC_rise", relation="indicates", weight=7.0)
+
+        # Reduced Evaporator Water Flow (REWF)
+        self.G.add_edge("REWF", "FWE_drop", relation="indicates", weight=10.0)
+```
+* Adds the characteristic thermodynamic symptom edges for the remaining fault modes along with their respective physical weights.
+
+---
+
+### Part 3: Symptom Activation Layer (`symptom_activation`)
+
+This method converts continuous statistical sensor deviations (\\(z\\)-scores) into normalized confidence values between \\(0.0\\) and \\(1.0\\).
+
+```python
+    def symptom_activation(self, sensor_z_scores):
+        active_symptoms = {}
+        for s_name, attrs in self.G.nodes(data=True):
+            if attrs.get("node_type") != "Symptom":
+                continue
+```
+* Creates an output dictionary `active_symptoms`.
+* Loops through every node in the graph; if the node is a fault (not a symptom), it skips it.
+
+```python
+            sensor = attrs["sensor"]
+            expected_dir = attrs["direction"]
+            z = sensor_z_scores.get(sensor, 0.0)
+            a_s = expected_dir * z
+```
+* Retrieves the sensor name and the expected physical direction (\\(+1\\) or \\(-1\\)).
+* Looks up the incoming sensor \\(z\\)-score from telemetry.
+* **`a_s = expected_dir * z`**: Multiplies the expected direction by the observed deviation:
+  * If a symptom expects a drop (\\(-1\\)) and \\(z = -2.0\\) (a drop), \\(a_s = (-1) \times (-2.0) = +2.0\\) (**positive**, confirming the physical symptom).
+  * If the sensor moves opposite to what physics predicts (e.g., pressure drops when it was supposed to rise), \\(a_s\\) becomes **negative** (**contradictory**).
+
+```python
+            # Piecewise linear activation
+            if abs(a_s) < self.tau_weak:
+                conf = 0.0
+            elif abs(a_s) >= self.tau_strong:
+                conf = 1.0
+            else:
+                conf = (abs(a_s) - self.tau_weak) / (self.tau_strong - self.tau_weak)
+```
+* Evaluates activation magnitude \\(|a_s|\\):
+  * Below \\(0.3\sigma\\): Ignored as background noise (`conf = 0.0`).
+  * Above \\(1.5\sigma\\): Strong certainty (`conf = 1.0`).
+  * Between \\(0.3\sigma\\) and \\(1.5\sigma\\): Linearly scaled between \\(0.0\\) and \\(1.0\\).
+
+```python
+            is_supportive = (a_s > 0)
+            active_symptoms[s_name] = {"conf": conf, "supportive": is_supportive}
+        return active_symptoms
+```
+* Flags whether the evidence is **supportive** (\\(a_s > 0\\)) or **contradictory** (\\(a_s < 0\\)).
+* Returns the confidence and direction alignment for every symptom node.
+
+---
+
+### Part 4: Graph-Grounded Evidence Scoring (`diagnose`)
+
+This method calculates the net thermodynamic evidence score for each candidate fault by traversing the graph.
+
+```python
+    def diagnose(self, sensor_z_scores):
+        sal = self.symptom_activation(sensor_z_scores)
+        scores = {}
+```
+* Runs the symptom activation layer on the incoming telemetry.
+* Initializes the `scores` dictionary to store the final score for each candidate fault.
+
+```python
+        for f in self.faults:
+            support_score = 0.0
+            distinguish_bonus = 0.0
+            contradict_penalty = 0.0
+```
+* Loops through each candidate fault hypothesis, initializing its three scoring components to zero.
+
+```python
+            for _, target, data in self.G.out_edges(f, data=True):
+                s_info = sal.get(target, {"conf": 0.0, "supportive": True})
+                conf = s_info["conf"]
+                if conf == 0:
+                    continue
+```
+* Inspects every outgoing edge from candidate fault `f` to symptom `target`.
+* Retrieves the activation confidence `conf`. If `conf == 0` (no meaningful deviation), it skips calculation for that edge.
+
+```python
+                if data.get("relation") == "indicates":
+                    w0 = data.get("weight", 1.0)
+                    if s_info["supportive"]:
+                        support_score += w0 * conf
+                    else:
+                        contradict_penalty += self.gamma * (w0 * conf)
+```
+* If the edge is an `indicates` relation:
+  * If the observed sensor deviation matches the expected physical direction, it adds weight: \\(w_0 \times \text{conf}\\).
+  * If the sensor moved in the **opposite** direction, it accumulates a penalty: \\(\gamma \times (w_0 \times \text{conf})\\) (where \\(\gamma = 0.5\\)).
+
+```python
+                elif data.get("relation") == "distinguishes" and s_info["supportive"]:
+                    distinguish_bonus += self.beta * conf
+```
+* If the edge is a `distinguishes` relation and the symptom is supportive, it applies the discriminative bonus: \\(\beta \times \text{conf}\\) (where \\(\beta = 2.0\\)).
+
+```python
+            scores[f] = support_score + distinguish_bonus - contradict_penalty
+```
+* Computes the net **Graph-Grounded Evidence Score (GGES)** for fault `f`:
+  \\[\text{GGES}(f) = \text{Supportive} + \text{Bonus} - \text{Penalty}\\]
+
+```python
+        top_fault = max(scores, key=scores.get)
+        top_score = scores[top_fault]
+
+        verdict = top_fault if top_score >= self.theta_min else "Unresolved"
+        return {"diagnosed_fault": verdict, "score": top_score, "all_scores": scores}
+```
+* Identifies the candidate fault with the highest net score.
+* If that score meets or exceeds \\(\theta_{min} = 0.5\\), it confirms the diagnosis; otherwise, it labels it `"Unresolved"`.
+* Returns the winning diagnosis, top score, and the complete scoring breakdown for inspection.
+
+---
+
+### Execution Trace Example
+
+When an `NC` fault occurs:
+* High discharge temperature activates `TRdis_rise` (\\(\text{conf} = 1.0\\), supportive).
+* High condenser pressure activates `PRC_rise` (\\(\text{conf} = 1.0\\), supportive).
+* High subcooling activates `TRCsub_rise` (\\(\text{conf} = 1.0\\), supportive).
+
+1. For **`ROC`** (Overcharge):
+   * `PRC_rise`: \\(+8.0 \times 1.0 = +8.0\\)
+   * `TRCsub_rise`: \\(+8.0 \times 1.0 = +8.0\\)
+   * *Total `ROC` Score*: **\\(16.0\\)**
+
+2. For **`NC`** (Non-Condensable Gases):
+   * `PRC_rise`: \\(+8.0 \times 1.0 = +8.0\\)
+   * `TRCsub_rise`: \\(+6.0 \times 1.0 = +6.0\\)
+   * `TRdis_rise` (`indicates`): \\(+8.0 \times 1.0 = +8.0\\)
+   * `TRdis_rise` (`distinguishes` bonus): \\(+2.0 \times 1.0 = +2.0\\)
+   * *Total `NC` Score*: **\\(24.0\\)**
+
+Because \\(24.0 > 16.0\\), the engine accurately identifies **`NC`** as the true fault while rejecting `ROC`, strictly following physical first principles.
+
+---
+
+💡 **Now that the logic and scoring flow are clear, would you like to expand the graph definition to include the full set of 46 nodes and 87 edges (incorporating physical components, severity progressions, and corrective maintenance actions)?**
