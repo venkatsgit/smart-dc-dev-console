@@ -62,6 +62,13 @@ Timestamps become the index when a parseable time column exists. Object columns 
 
 This plot step is for understanding only. It does not train models.
 
+### The Clock: `elapsed_hours`
+**`elapsed_hours`** is a relative clock for each individual simulation file, measuring the time passed since the start of that specific run.
+*   **0–24 hours:** The machine is physically healthy (Healthy stretch).
+*   **Exactly 24 hours:** The fault (root cause) is injected into the machine.
+*   **> 24 hours:** The machine is operating under a fault ("sick").
+*   **Sickness Duration:** How long the machine has been sick is calculated as `elapsed_hours - 24`.
+
 ---
 
 ## 3. Step B — Dataset preparation for binary classification (cells 4–7)
@@ -240,12 +247,52 @@ Imagine you are in a room with 10 people. 9 are talking about "Fouling" and 1 is
 *   **Multiclass Confusion Matrix:** This is the primary scorecard. It shows if the model is confusing one fault for another (e.g., misidentifying *Reduced Flow* as *Fouling*).
 *   **Confidence Score:** The model doesn't just name a fault; it says how sure it is (e.g., "90% confident this is a Vapour Leak").
 
-### Why this is the "Stage 2" Model
-This is the "Brain" of the operation. By combining the **Detector** (Step C) and the **Diagnostician** (Step D), the system can alert operators that a fault is active and pinpoint the exact maintenance action required.
+### The Output: A Probability Vector (Understanding the Diagnostician)
+
+While the **Binary** model outputs a single number (0 to 1), the **Multiclass** model outputs a **vector of probabilities**—one for every possible fault family.
+
+1.  **Probability for Every Class:** If you have 6 fault families, the model returns 6 numbers. For example:
+    *   `02_condenser_fouling`: 0.85 (85%)
+    *   `04_refrigerant_vapour_leakage`: 0.05 (5%)
+    *   `06_reduced_condenser_water_flow`: 0.10 (10%)
+    *   ... (others at 0%)
+2.  **Sum to 100%:** All these probabilities sum exactly to **1.0 (100%)**. This is usually achieved via a *Softmax* function in the model.
+3.  **The "Winner" (Prediction):** The final prediction is the fault with the **highest probability** (the *Argmax*). In the example above, the prediction is "Condenser Fouling."
+4.  **Confidence Score:** The highest probability value (0.85) is treated as the **Confidence Score**. It tells the operator how sure the model is that it has found the right root cause.
+
+**In the inference cascade:** We only look at these probabilities if the Binary model has already confirmed that a fault is active.
 
 ---
 
-## 6. Step E — Survival / RUL setup (cells 23–26)
+## 6. Understanding Performance Metrics
+
+To evaluate how well our Detector and Diagnostician are performing, we use three primary metrics: **Precision**, **Recall**, and the **F1-Score**.
+
+### 6.1 Binary Classification (Stage 1: The Detector)
+
+In this stage, the **Positive Class (1)** is a **Fault** and the **Negative Class (0)** is **Healthy**.
+
+| Metric | Question for the Model | Penalty (What to avoid) | Risk if Low |
+| :--- | :--- | :--- | :--- |
+| **Precision** | "Of all the times you shouted 'FAULT!', how many were real?" | **False Positives** (Crying wolf) | Maintenance fatigue; unnecessary downtime. |
+| **Recall** | "Of all the actual faults that happened, how many did you catch?" | **False Negatives** (Missing a problem) | Machine damage; unmanaged degradation. |
+| **F1-Score** | "How well are you balancing being reliable and being thorough?" | **Both** | Unreliable or incomplete monitoring system. |
+
+**Goal:** A high F1-score proves the model is a reliable detector that finds real problems without causing constant false alarms.
+
+### 6.2 Multiclass Classification (Stage 2: The Diagnostician)
+
+In this stage, we use **Macro-averaged** metrics. This means we calculate the score for every individual fault family (e.g., Gas Leak, Fouling, Flow Loss) and then take the average.
+
+| Metric | Focus for the Diagnostician | Penalty (What to avoid) | Why it matters |
+| :--- | :--- | :--- | :--- |
+| **Macro Precision** | Not misidentifying one fault as another. | **Misclassification** (e.g., calling a Leak "Fouling") | Prevents technicians from bringing the wrong tools or parts. |
+| **Macro Recall** | Not missing any specific type of failure family. | **Class Missing** (e.g., being blind to Gas Leaks) | Ensures the system is equally good at finding all types of root causes. |
+| **Macro F1-Score** | Balance across all fault families. | **Bias** (Favoring common faults over rare ones) | Ensures a fair and consistent diagnostic across the entire plant. |
+
+---
+
+## 7. Step E — Survival / RUL setup (cells 23–26)
 
 Step E prepares the data for the **Time-to-Trip** question. Unlike classification (which asks "Is it failing?"), this stage asks: **"Given it is already failing, how many hours until it trips?"**
 

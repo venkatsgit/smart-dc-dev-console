@@ -17,6 +17,10 @@ Develop a robust data preprocessing component to transform raw centrifugal chill
     *   Detect and handle missing values (NaN) and infinities.
     *   Numeric conversion of object-type sensor columns.
     *   Confirm presence of healthy baseline (first 24 hours of every file).
+    *   **Understand `elapsed_hours`:** This is the relative clock for the simulation run. 
+        *   `elapsed_hours <= 24`: Machine is healthy.
+        *   `elapsed_hours > 24`: Machine is "sick" (fault active).
+        *   **Sickness Duration:** `elapsed_hours - 24` is how many hours the machine has been operating under a fault.
 3.  **Windowing Engine:**
     *   Implement a sliding window of **60 minutes** with a **10-minute stride** (50-minute overlap).
     *   Feature Extraction: Compute **Mean, Standard Deviation, Slope, and Last Value** per sensor per window.
@@ -60,7 +64,11 @@ Develop the training pipeline for the Stage-1 Detector (Binary) and Stage-2 Diag
     *   Utilize the `sample_weight` column from the input CSV during model training for the multi-class stage.
     *   Ensure weights are NOT used as features.
 4.  **MLflow Governance:**
-    *   Log all hyperparameters and performance metrics (Accuracy, F1, ROC-AUC).
+    *   **Log Hyperparameters:** Track settings such as `learning_rate` (step size), `max_depth` (tree complexity), and `n_estimators` (number of trees).
+    *   **Log Performance Metrics:**
+        *   **Accuracy:** The ratio of correct predictions to total predictions. In our multiclass case, we specifically track **Balanced Accuracy** to account for different simulation lengths.
+        *   **F1-Score:** The harmonic mean of Precision and Recall. It ensures the model doesn't just "guess" the most common class. In **Multiclass**, we use **Macro-averaged F1** to treat every fault family (Fouling, Leak, etc.) as equally important.
+        *   **ROC-AUC:** The "Area Under the Receiver Operating Characteristic curve." It measures the model's ability to separate classes (Healthy vs. Faulty in Binary; One-vs-Rest in Multiclass). A value of 1.0 indicates a perfect detector.
     *   Register the winning model versions in the MLflow Model Registry.
 
 **Outcomes:**
@@ -78,11 +86,16 @@ Create the inference component that applies the two-stage logic (Detector -> Dia
 
 **Requirements:**
 1.  **Unified Preprocessing:** Mirror the 60-minute windowing and feature extraction logic used in Issue 1.
-2.  **Inference Cascade:**
-    *   **Stage 1:** Pass the window to the Binary Model.
-    *   **Stage 2:** If Stage 1 detects a fault (`prob >= 0.5`), pass the SAME window to the Multi-class Model for diagnosis.
-3.  **Real-time Feature Computation:** Must handle rolling data buffers efficiently.
-4.  **Output Payload:** Structured JSON with Health Status, Fault Type (if any), and Confidence Score.
+2.  **Training Insight:**
+    *   **Labeling:** During training, `elapsed_hours` is used to define the labels: 0 for healthy (<= 24h) and 1 for faulty (> 24h).
+3.  **Inference Cascade:**
+    *   **Stage 1:** Pass the window to the Binary Model. The output is a single probability (0 to 1).
+    *   **Stage 2:** If Stage 1 detects a fault (`prob >= 0.5`), pass the SAME window to the Multi-class Model.
+        *   **Softmax Output:** The Multi-class model outputs a probability vector (one per fault class) summing to 1.0.
+        *   **Winner:** The fault with the highest probability is the predicted root cause.
+        *   **Confidence:** The specific probability of that "winner" is the confidence score.
+4.  **Real-time Feature Computation:** Must handle rolling data buffers efficiently.
+5.  **Output Payload:** Structured JSON with Health Status, Fault Type (if any), and Confidence Score.
 
 **Outcomes:**
 *   Production Inference script/module.

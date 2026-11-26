@@ -74,7 +74,18 @@ Only includes faulty windows (`label == 1`).
 
 ---
 
-## Slide 6: Continuous Improvement (MLflow)
+## Slide 6: Stage 3 — Remaining Useful Life (RUL) Prediction
+*   **The Concept:** Once a fault is diagnosed (Stage 2), the system estimates the **Remaining Useful Life (RUL)** before a protection trip occurs.
+*   **Current Strategy (Rule-Based):** Due to limited data (one instance per scenario), we currently map the detected fault to its known degradation trajectory.
+*   **Target State (ML-Based RUL):** To move from rule-based to a robust ML model, we require multiple R2F instances per scenario to capture variation in degradation patterns.
+*   **Data Expansion Request ([Issue #528](https://github.com/venkatsgit/smart-dc-documents/issues/528)):**
+    *   **Current Limitation:** Only 1 instance per scenario/level.
+    *   **Request:** Leverage 2 weeks of provided telemetry (80% and 58% loads) to generate **10 unique R2F instances** for every scenario and severity level.
+    *   **Benefit:** Multiple instances expose the model to different operating conditions (30%, 40%, etc.) and healthy baselines, allowing it to generalize and learn robust patterns rather than relying on a single trajectory.
+
+---
+
+## Slide 7: Continuous Improvement (MLflow)
 *   **Tracking:** Every model version, hyperparameter, and performance metric is stored in MLflow.
 *   **Governance:** Clear audit trail of model performance across different loads (58% vs 80%).
 *   **Scalability:** The pipeline is designed to easily ingest new failure scenarios (e.g., SL1 vs SL4) as they are simulated.
